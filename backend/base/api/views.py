@@ -10,6 +10,7 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 
 from .serializers import ProblemSerializer
+from base.models import Problem
 
 # Create your views here.
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
@@ -56,8 +57,7 @@ def register_user(request):
 
 @view(['GET'])
 @permission_classes([IsAuthenticated])
-def get_notes(request):
-    user = request.user
-    notes = user.note_set.all()
-    serializer = ProblemSerializer(notes, many = True)
+def get_latest_problems(request):
+    problems = Problem.objects.all().order_by('-date')[:5]
+    serializer = ProblemSerializer(problems, many = True)
     return Response(serializer.data)
