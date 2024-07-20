@@ -1,7 +1,7 @@
 from rest_framework.serializers import ModelSerializer
-from base.models import Note
+from base.models import Problem
 
-class NoteSerializer(ModelSerializer):
+class ProblemSerializer(ModelSerializer):
     class Meta:
-        model = Note
+        model = Problem
         fields = '__all__'
