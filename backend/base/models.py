@@ -22,11 +22,17 @@ class Problem(models.Model):
     memory_limit = models.FloatField()
     date = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        return self.title
+
 class Forum(models.Model):
     problem = models.ForeignKey(Problem, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     content = models.TextField()
     date = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return 'Forum: ' + self.problem.title
 
 class Submission(models.Model):
     problem = models.ForeignKey(Problem, on_delete=models.CASCADE)
@@ -38,3 +44,6 @@ class Submission(models.Model):
     memory = models.FloatField()
     language = models.CharField(max_length=100)
     status = models.CharField(max_length=100)
+
+    def __str__(self):
+        return 'Submission: ' + self.problem.title
