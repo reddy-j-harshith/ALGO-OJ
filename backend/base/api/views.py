@@ -9,8 +9,7 @@ from django.http import HttpResponse
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 
-from .serializers import NoteSerializer
-from base.models import Note
+from .serializers import ProblemSerializer
 
 # Create your views here.
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
@@ -60,5 +59,5 @@ def register_user(request):
 def get_notes(request):
     user = request.user
     notes = user.note_set.all()
-    serializer = NoteSerializer(notes, many = True)
+    serializer = ProblemSerializer(notes, many = True)
     return Response(serializer.data)
