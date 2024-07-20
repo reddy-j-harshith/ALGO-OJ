@@ -1,18 +1,19 @@
 import React, { useState, useEffect, useContext } from 'react'
+import { Link } from 'react-router-dom'
 import AuthContext from '../context/AuthContext'
 
 const Homepage = () => {
 
-  let [ notes, setNotes ] = useState([])
+  let [ problems, setProblems ] = useState([])
   let { authTokens } = useContext(AuthContext)
   let logout = useContext(AuthContext)
 
   useEffect(() => {
-    getNotes()
-  }, [])
+    getProblems()
+  })
 
-  let getNotes = async () => {
-    let response = await fetch('http://localhost:8000/api/all_notes/', {
+  let getProblems = async () => {
+    let response = await fetch('http://localhost:8000/api/get_latest/', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -22,7 +23,7 @@ const Homepage = () => {
     let data = await response.json()
 
     if(response.status === 200){
-        setNotes(data)
+        setProblems(data)
     } else if (response.status === 401) {
         logout()
     }
@@ -33,8 +34,10 @@ const Homepage = () => {
       <p>You are logged into the homepage!</p>
 
       <ul>
-        {notes.map(note => (
-          <li key = {note.id}>{note.body}</li>
+        {problems.map(note => (
+          <Link to={`/get_problem/${note.id}`} key={note.id}>
+            <li>{note.title}</li>
+          </Link>
         ))}
       </ul>
     </div>

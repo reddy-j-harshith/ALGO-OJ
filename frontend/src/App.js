@@ -5,6 +5,7 @@ import { AuthProvider } from './context/AuthContext'
 
 import Homepage from './pages/Homepage'
 import LoginPage from './pages/LoginPage'
+import ProblemPage from './pages/ProblemPage'
 import Header from './components/Header'
 
 function App() {
@@ -20,6 +21,7 @@ function App() {
               </PrivateRoute>
             } />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/get_problem/:id" element={<ProblemPage />} />
           </Routes>
         </AuthProvider>
       </Router>

@@ -61,3 +61,10 @@ def get_latest_problems(request):
     problems = Problem.objects.all().order_by('-date')[:5]
     serializer = ProblemSerializer(problems, many = True)
     return Response(serializer.data)
+
+@view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_problem(request, id):
+    problem = Problem.objects.get(id = id)
+    serializer = ProblemSerializer(problem, many = False)
+    return Response(serializer.data)
