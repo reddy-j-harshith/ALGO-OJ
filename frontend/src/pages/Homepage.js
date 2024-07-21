@@ -36,12 +36,10 @@ const HomePage = () => {
       <div className="problem-list">
         {problems.map((problem) => (
           <div key={problem.id} className="problem-item">
-            <div className="problem-info">
-              <span className="problem-name">{problem.title}</span>
-              {/* <span className="problem-code">Code: {problem.code}</span> */}
-            </div>
             <Link to={`/get_problem/${problem.id}`} className="problem-link">
-              Solve
+              <div className="problem-info">
+                {problem.title}
+              </div>
             </Link>
           </div>
         ))}

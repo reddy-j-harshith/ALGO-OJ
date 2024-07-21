@@ -1,7 +1,7 @@
 .problem-list-container {
     margin: 20px auto;
     width: 80%; /* Adjust the width as needed */
-    max-width: 800px; /* Add a maximum width */
+    max-width: 500px; /* Add a maximum width */
     text-align: center;
 }
 
@@ -13,11 +13,12 @@
 .problem-list {
     /* display: grid;
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); */
-    gap: 20px;
+    gap: 70px;
 
 }
 
 .problem-item {
+    list-style-type: none;
     background-color: #f7f7f7;
     border: 1px solid #ddd;
     border-radius: 5px;
@@ -30,7 +31,8 @@
 }
 
 .problem-info {
-    margin-bottom: 10px;
+    margin: 2px 5px;
+    color: rgb(255, 255, 255);
 }
 
 .problem-name {
@@ -40,7 +42,7 @@
 }
 
 .problem-code {
-    font-size: 14px;
+    font-size: 16px;
     color: #666;
 }
 
@@ -49,12 +51,13 @@
     text-align: center;
     padding: 8px 0;
     color: #fff;
-    background-color: #007bff;
+    background-color: #28282B;
     border-radius: 5px;
     text-decoration: none;
+    text-align: center;
     transition: background-color 0.3s ease;
 }
 
 .problem-link:hover {
-    background-color: #0056b3;
+    background-color: red;
 }
