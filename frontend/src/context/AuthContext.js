@@ -20,7 +20,7 @@ export const AuthProvider = ({children}) => {
             headers:{
                 'Content-Type':'application/json'
             },
-            body:JSON.stringify({'username':e.target.Username.value, 'password':e.target.Password.value})
+            body:JSON.stringify({'username':e.target.username.value, 'password':e.target.password.value})
         })
         let data = await response.json()
 
@@ -29,8 +29,8 @@ export const AuthProvider = ({children}) => {
             setUser(jwtDecode(data.access))
             localStorage.setItem('authTokens', JSON.stringify(data))
             navigate('/')
-        }else{
-            alert('Something went wrong!')
+        }else if(response.status === 401){
+            alert('Invalid credentials')
         }
     }
 

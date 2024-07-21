@@ -16,7 +16,6 @@ class Problem(models.Model):
     solved = models.IntegerField(default=0)
     accuracy = models.FloatField(default=0.0)
     difficulty = models.CharField(max_length=100)
-    testcases = models.IntegerField(default=0)
     test_case_file = models.FileField(upload_to='test_case_files/')
     time_limit = models.FloatField()
     memory_limit = models.FloatField()
@@ -24,6 +23,14 @@ class Problem(models.Model):
 
     def __str__(self):
         return self.title
+
+class TestCase(models.Model):
+    problem = models.ForeignKey(Problem, on_delete=models.CASCADE)
+    input = models.FileField(upload_to='input_files/')
+    output = models.FileField(upload_to='output_files/')
+
+    def __str__(self):
+        return 'Test Case: ' + self.problem.title
 
 class Forum(models.Model):
     problem = models.ForeignKey(Problem, on_delete=models.CASCADE)
@@ -38,8 +45,8 @@ class Submission(models.Model):
     problem = models.ForeignKey(Problem, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     code = models.FileField(upload_to='code_files/')
-    date = models.DateTimeField(auto_now_add=True)
-    result = models.TextField()
+    submitted_at = models.DateTimeField(auto_now_add=True)
+    verdict = models.TextField()
     time = models.FloatField()
     memory = models.FloatField()
     language = models.CharField(max_length=100)

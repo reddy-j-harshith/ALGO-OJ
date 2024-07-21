@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useContext } from 'react'
 import { Link } from 'react-router-dom'
 import AuthContext from '../context/AuthContext'
+import './HomePage.css'
 
-const Homepage = () => {
+const HomePage = () => {
 
   let [ problems, setProblems ] = useState([])
   let { authTokens } = useContext(AuthContext)
-  let logout = useContext(AuthContext)
+  let { logoutUser } = useContext(AuthContext)
   
   let getProblems = async () => {
     let response = await fetch('http://localhost:8000/api/get_latest/', {
@@ -21,7 +22,7 @@ const Homepage = () => {
     if(response.status === 200){
       setProblems(data)
     } else if (response.status === 401) {
-      logout()
+      logoutUser()
     }
   }
   
@@ -30,18 +31,23 @@ const Homepage = () => {
     }, [])
   
   return (
-    <div>
-      <p>You are logged into the homepage!</p>
-
-      <ul>
-        {problems.map(note => (
-          <Link to={`/get_problem/${note.id}`} key={note.id}>
-            <li>{note.title}</li>
-          </Link>
+    <div className="problem-list-container">
+      <h2 className="problem-list-title">Latest Problems</h2>
+      <div className="problem-list">
+        {problems.map((problem) => (
+          <div key={problem.id} className="problem-item">
+            <div className="problem-info">
+              <span className="problem-name">{problem.title}</span>
+              {/* <span className="problem-code">Code: {problem.code}</span> */}
+            </div>
+            <Link to={`/get_problem/${problem.id}`} className="problem-link">
+              Solve
+            </Link>
+          </div>
         ))}
-      </ul>
+      </div>
     </div>
   )
 }
 
-export default Homepage
+export default HomePage
