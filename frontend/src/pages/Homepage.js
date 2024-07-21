@@ -7,28 +7,28 @@ const Homepage = () => {
   let [ problems, setProblems ] = useState([])
   let { authTokens } = useContext(AuthContext)
   let logout = useContext(AuthContext)
-
-  useEffect(() => {
-    getProblems()
-  })
-
+  
   let getProblems = async () => {
     let response = await fetch('http://localhost:8000/api/get_latest/', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${authTokens.access}`,
+        'Authorization': `Bearer ${authTokens?.access}`,
       }
     })
     let data = await response.json()
-
+    
     if(response.status === 200){
-        setProblems(data)
+      setProblems(data)
     } else if (response.status === 401) {
-        logout()
+      logout()
     }
   }
-
+  
+    useEffect(() => {
+      getProblems()
+    }, [])
+  
   return (
     <div>
       <p>You are logged into the homepage!</p>
