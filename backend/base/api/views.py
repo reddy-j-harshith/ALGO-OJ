@@ -48,12 +48,12 @@ def register_user(request):
     user = User.objects.filter(username = username)
 
     if user.exists():
-        return HttpResponse("User already exists", status=409)
+        return JsonResponse({"Message": "User name already exists"}, status=409)
 
     user = User.objects.create_user(username = username, password = password, first_name = firstname, last_name = lastname, email = email)
     user.save()
 
-    return HttpResponse("User created successfully", status=201)
+    return JsonResponse({"Message": "User created successfully"}, status=201)
 
 @view(['GET'])
 @permission_classes([IsAuthenticated])
