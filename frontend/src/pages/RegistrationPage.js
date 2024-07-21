@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
+import AuthContext from '../context/AuthContext'
 
 const RegistrationPage = () => {
   const [formData, setFormData] = useState({
@@ -16,6 +18,10 @@ const RegistrationPage = () => {
     });
   };
 
+  let navigate = useNavigate();
+  let { logoutUser } = useContext(AuthContext);
+  let { authTokens } = useContext(AuthContext);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     let response = await fetch('http://localhost:8000/api/register/', {
@@ -25,16 +31,19 @@ const RegistrationPage = () => {
       },
       body: JSON.stringify(formData),
     });
-    let data = await response.json();
 
-    if (response.status === 200) {
-      // Registration successful
+    if (response.status === 201) {
+      console.log('Registration successful');
+      if (authTokens) {
+        logoutUser();
+      }
+      navigate('/login');
     } else if (response.status === 401) {
       // Unauthorized
     }
     console.log(formData);
   };
-
+  
   return (
     <div>
       <h2>Registration Page</h2>
