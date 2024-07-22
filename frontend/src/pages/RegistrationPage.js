@@ -53,42 +53,49 @@ const RegistrationPage = () => {
   
   return (
     <div className="registration-form-container">
-    <h2>User Registration</h2>
+    <h2 style={{ textAlign: "center", color: 'white' }}>Register</h2>
     {error && <p className="error-message">{error}</p>} {/* Display error message */}
-    <form onSubmit={handleSubmit}>
-      <label>
-        Username:
+    <div className='col'>
+      <form onSubmit={handleSubmit}>
+
         <input
           type="text"
           name="username"
+          placeholder='Username'
           value={formData.username}
           onChange={handleChange}
           required
         />
-      </label>
-      <label>
-        Email:
+
+
         <input
           type="email"
           name="email"
+          placeholder='Email'
           value={formData.email}
           onChange={handleChange}
           required
         />
-      </label>
-      <label>
-        Password:
+
+
         <input
           type="password"
           name="password"
+          placeholder='Password'
           value={formData.password}
           onChange={handleChange}
           required
         />
-      </label>
-      <button type="submit">Register</button>
-    </form>
-    <button className="go-to-login-button" onClick={handleLoginButtonClick}>Go to Login Page</button>
+
+      <input type="submit" value="Register" className='button'/>
+      </form>
+      <div className="divider">
+        <span className="divider-text">Already have an account?</span>
+      </div>
+      <form onSubmit={handleLoginButtonClick}>
+        <input type="submit" value="Login" className='button'/>
+      </form>
+    </div>
   </div>
 );
 };

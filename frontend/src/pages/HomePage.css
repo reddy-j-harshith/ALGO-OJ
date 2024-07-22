@@ -8,6 +8,8 @@
 .problem-list-title {
     font-size: 24px;
     margin-bottom: 20px;
+    color: #fff;
+    text-shadow: #fff;
 }
 
 .problem-list {
@@ -19,8 +21,8 @@
 
 .problem-item {
     list-style-type: none;
-    background-color: #f7f7f7;
-    border: 1px solid #ddd;
+    background-color: #000000;
+    border: 1px solid #ccc;
     border-radius: 5px;
     padding: 15px;
     transition: box-shadow 0.3s ease;
@@ -49,9 +51,8 @@
 .problem-link {
     display: block;
     text-align: center;
-    padding: 8px 0;
+    padding: 0px 0;
     color: #fff;
-    background-color: #28282B;
     border-radius: 5px;
     text-decoration: none;
     text-align: center;
@@ -59,5 +60,5 @@
 }
 
 .problem-link:hover {
-    background-color: red;
+    background-color: #000000;
 }

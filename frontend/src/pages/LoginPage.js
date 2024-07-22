@@ -14,31 +14,22 @@ const LoginPage = () => {
 
   return (
     <div className="login-form-container">
-      <h2>Login</h2>
-      <form onSubmit={loginUser}>
-        <label>
-          Username:
-          <input
-            type="text"
-            name="username"
-            placeholder="username"
-            required
-          />
-        </label>
-        <label>
-          Password:
-          <input
-            type="password"
-            name="password"
-            placeholder="password"
-            required
-          />
-        </label>
-        <button type="submit">Login</button>
-      </form>
-      <button className="register-button" onClick={handleRegisterButtonClick}>
-        Register
-      </button>
+      <div className="row">
+        <h2 style={{ textAlign: "center", color: 'white' }}>Login</h2>
+        <div className="col">
+          <form onSubmit={loginUser}>
+            <input type="text" name="username" placeholder="Username" required />
+            <input type="password" name="password" placeholder="Password" required />
+            <input type="submit" value="Login" className='button'/>
+          </form>
+          <div className="divider">
+            <span className="divider-text">New User?</span>
+          </div>
+          <form onSubmit={handleRegisterButtonClick} className='register-button'>
+            <input type="submit" value="Register" className='button'/>
+          </form>
+        </div>
+      </div>
     </div>
   );
 }
