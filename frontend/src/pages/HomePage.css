@@ -8,8 +8,8 @@
 .problem-list-title {
     font-size: 24px;
     margin-bottom: 20px;
-    color: #fff;
-    text-shadow: #fff;
+    color: #eee;
+    text-shadow: #000 2px 2px 2px;
 }
 
 .problem-list {
