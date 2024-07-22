@@ -65,6 +65,11 @@ def get_latest_problems(request):
 @view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_problem(request, id):
-    problem = Problem.objects.get(id = id)
-    serializer = ProblemSerializer(problem, many = False)
-    return Response(serializer.data)
+    try:
+        problem = Problem.objects.get(id=id)
+        serializer = ProblemSerializer(problem, many=False)
+        return Response(serializer.data, status=200)
+    except Problem.DoesNotExist:
+        return JsonResponse({"error": "Problem not found"}, status=404)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)

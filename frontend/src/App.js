@@ -8,6 +8,7 @@ import ProblemPage from './pages/ProblemPage';
 import RegistrationPage from './pages/RegistrationPage';
 import Navbar from './components/Navbar';
 import LoginRoute from './utils/LoginRoute';
+import NotFound from './pages/NotFound';
 
 function App() {
   return (
@@ -33,6 +34,7 @@ function App() {
                 <LoginPage />
               </LoginRoute>
             } />
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
       </Router>

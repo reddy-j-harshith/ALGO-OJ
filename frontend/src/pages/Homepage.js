@@ -19,6 +19,8 @@ const HomePage = () => {
     })
     let data = await response.json()
     
+    console.log(response)
+
     if(response.status === 200){
       setProblems(data)
     } else if (response.status === 401) {
