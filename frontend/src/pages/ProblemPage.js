@@ -1,27 +1,35 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { useParams } from 'react-router-dom';
+import AuthContext from '../context/AuthContext';
 
 const ProblemPage = () => {
   const { id } = useParams();
   const [problem, setProblem] = useState(null);
   const [code, setCode] = useState('');
 
+  let {authTokens} = useContext(AuthContext);
+
   useEffect(() => {
     const fetchProblem = async () => {
-      try {
-        const response = await fetch(`/api/get_problem/${id}`, 
-          {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json',
-            }
+
+      const response = await fetch(`/api/get_problem/${id}`, 
+        {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${authTokens?.access}`,
+            'Content-Type': 'application/json',
           }
-        ); //
-        const data = await response.json();
-        setProblem(data);
-      } catch (error) {
-        console.error('Error fetching problem:', error);
+        }
+      ); //
+      console.log('Problem:', response.status);
+      const data = await response.json();
+      setProblem(data);
+
+
+      if (response.status === 401) {
+        // Handle unauthorized
       }
+
     };
 
     fetchProblem();

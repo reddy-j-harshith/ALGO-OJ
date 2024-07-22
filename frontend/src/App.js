@@ -7,6 +7,7 @@ import LoginPage from './pages/LoginPage';
 import ProblemPage from './pages/ProblemPage';
 import RegistrationPage from './pages/RegistrationPage';
 import Navbar from './components/Navbar';
+import LoginRoute from './utils/LoginRoute';
 
 function App() {
   return (
@@ -26,7 +27,12 @@ function App() {
                 <ProblemPage />
               </PrivateRoute>
             } />
-            <Route path="/login" element={<LoginPage />} />
+
+            <Route path="/login" element={
+              <LoginRoute>
+                <LoginPage />
+              </LoginRoute>
+            } />
           </Routes>
         </AuthProvider>
       </Router>

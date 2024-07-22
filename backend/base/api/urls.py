@@ -13,5 +13,5 @@ urlpatterns = [
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('register/', register_user, name = 'register_user'),
     path('get_latest/', get_latest_problems, name = 'get_latest_problems'),
-    path('get_problem/<int:id>/', get_problem, name = 'get_problem'),
+    path('get_problem/<int:id>', get_problem, name = 'get_problem'),
 ]
