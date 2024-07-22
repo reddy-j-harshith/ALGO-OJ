@@ -18,6 +18,7 @@
 
 .problem-detail-content {
     background-color: #000;
+    text-align: left;
     color: #ddd;
     border: 1px solid #333;
     border-radius: 5px;
@@ -54,6 +55,19 @@
     color: #ddd;
 }
 
+.forum-link {
+    width: 100%;
+    padding: 10px;
+    margin-top: 20px;
+    background-color: #000;
+    border: 1px solid #333;
+    color: #ddd;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
 .language-select select {
     padding: 5px;
     border: 1px solid #333;
@@ -81,6 +95,7 @@
     color: #ddd;
     border-radius: 5px;
     cursor: pointer;
+    font-size: 16px;
     transition: background-color 0.3s ease;
 }
 

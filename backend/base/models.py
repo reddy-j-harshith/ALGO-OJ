@@ -7,8 +7,9 @@ from django.contrib.auth.models import User
 
 # Create your models here.
 class Problem(models.Model):
+    code = models.CharField(max_length=50, unique=True)
     title = models.CharField(max_length=100)
-    problem_statement = models.TextField()
+    description = models.TextField()
     attempts = models.IntegerField(default=0)
     solved = models.IntegerField(default=0)
     accuracy = models.FloatField(default=0.0)
@@ -29,14 +30,14 @@ class Problem(models.Model):
 
 class TestCase(models.Model):
     problem = models.ForeignKey(Problem, on_delete=models.CASCADE)
-    input = models.CharField(max_length=100)
-    output = models.CharField(max_length=100)
+    inputs = models.CharField(max_length=100)
+    outputs = models.CharField(max_length=100)
 
     def __str__(self):
         return 'Test Case: ' + self.problem.title
 
 class Forum(models.Model):
-    problem = models.ForeignKey(Problem, on_delete=models.CASCADE)
+    problem = models.OneToOneField(Problem, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     content = models.TextField()
     date = models.DateTimeField(auto_now_add=True)

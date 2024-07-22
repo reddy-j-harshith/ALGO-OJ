@@ -37,8 +37,8 @@ const HomePage = () => {
       <h2 className="problem-list-title">Latest Problems</h2>
       <div className="problem-list">
         {problems.map((problem) => (
-          <div key={problem.id} className="problem-item">
-            <Link to={`/get_problem/${problem.id}`} className="problem-link">
+          <div key={problem.code} className="problem-item">
+            <Link to={`/get_problem/${problem.code}`} className="problem-link">
               <div className="problem-info">
                 {problem.title}
               </div>

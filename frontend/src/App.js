@@ -23,7 +23,7 @@ function App() {
                 <HomePage />
               </PrivateRoute>
             } />
-            <Route path="/get_problem/:id" element={
+            <Route path="/get_problem/:code" element={
               <PrivateRoute>
                 <ProblemPage />
               </PrivateRoute>

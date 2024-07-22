@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useContext } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { Editor } from "@monaco-editor/react"; // Import the Monaco Editor
 import "./ProblemPage.css"; // Import the CSS file
 import AuthContext from "../context/AuthContext";
 
 function ProblemDetail() {
-  const { id } = useParams();
+  const { code } = useParams();
   const [problem, setProblem] = useState(null);
   const [codeInput, setCodeInput] = useState("");
   const [selectedLanguage, setSelectedLanguage] = useState("c"); // Default to 'c'
@@ -15,7 +15,7 @@ function ProblemDetail() {
   let { authTokens } = useContext(AuthContext); // Retrieve access token from local storage
 
   useEffect(() => {
-    fetch(`http://localhost:8000/api/get_problem/${id}/`, {
+    fetch(`http://localhost:8000/api/get_problem/${code}/`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${authTokens?.access}`, // Include access token in Authorization header
@@ -28,7 +28,7 @@ function ProblemDetail() {
     .catch((error) => {
       console.error("Error fetching problem detail:", error);
     });
-  }, [id, authTokens]);
+  }, [code, authTokens]);
 
   const handleSubmit = () => {
     // Handle code submission here
@@ -39,10 +39,10 @@ function ProblemDetail() {
 
     const formData = new URLSearchParams();
     formData.append("lang", selectedLanguage);
-    formData.append("problem_code", id); // Assuming problemCode is available
+    formData.append("problem_code", code); // Assuming problemCode is available
     formData.append("code", codeInput);
 
-    fetch("http://localhost:8000/api/execute/", {
+    fetch("http://localhost:8000/api/execute_code/", {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${authTokens?.access}`, // Include access token in Authorization header
@@ -53,7 +53,7 @@ function ProblemDetail() {
     .then(response => response.json())
     .then(data => {
       console.log("Response:", data);
-      setResponseOutput(data.result);
+      setResponseOutput(data.output);
       // Handle response here
     })
     .catch((error) => {
@@ -65,6 +65,11 @@ function ProblemDetail() {
       setSubmitting(false);
     });
   };
+let navigate = useNavigate();
+
+  const handleForumSubmit = (e) => {
+    navigate('/forum/' + problem.code);
+  }
 
   if (!problem) {
     return <div className="loading">Loading...</div>;
@@ -74,7 +79,7 @@ function ProblemDetail() {
     <div className="problem-detail-container">
       <h2 className="problem-detail-title">{problem.title}</h2>
       <div className="problem-detail-content">
-        <div className="problem-statement">{problem.problem_statement}</div>
+        <div className="problem-statement">{problem.description}</div>
       </div>
       <div className="editor-container">
         <Editor
@@ -96,6 +101,12 @@ function ProblemDetail() {
             <option value="py">Python</option>
           </select>
         </div>
+        <button
+          className="submit-button"
+          onClick={handleForumSubmit}
+          >
+          Forum
+        </button>
         <button
           className="submit-button"
           onClick={handleSubmit}
