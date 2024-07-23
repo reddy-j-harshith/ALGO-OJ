@@ -94,8 +94,8 @@ const ProblemPage = () => {
                     <input type="text" name="title" placeholder="Title" value={problem.title} onChange={handleChange} required />
                     <textarea name="description" placeholder="Description" value={problem.description} onChange={handleChange} required></textarea>
                     <input type="text" name="difficulty" placeholder="Difficulty" value={problem.difficulty} onChange={handleChange} required />
-                    <input type="number" name="time_limit" placeholder="Time Limit (ms)" value={problem.time_limit} onChange={handleChange} required />
-                    <input type="number" name="memory_limit" placeholder="Memory Limit (KB)" value={problem.memory_limit} onChange={handleChange} required />
+                    <input type="number" name="time_limit" placeholder="Time Limit (s)" value={problem.time_limit} onChange={handleChange} required />
+                    <input type="number" name="memory_limit" placeholder="Memory Limit (MB)" value={problem.memory_limit} onChange={handleChange} required />
 
                     <h3>Test Cases</h3>
                     {testCases.map((testCase, index) => (

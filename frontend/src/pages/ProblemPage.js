@@ -10,7 +10,7 @@ function ProblemDetail() {
   const [codeInput, setCodeInput] = useState("");
   const [selectedLanguage, setSelectedLanguage] = useState("c"); // Default to 'c'
   const [submitting, setSubmitting] = useState(false);
-  const [responseOutput, setResponseOutput] = useState("");
+  const [responseOutput, setResponseOutput] = useState(null);
 
   let { authTokens } = useContext(AuthContext); // Retrieve access token from local storage
 
@@ -53,8 +53,7 @@ function ProblemDetail() {
     .then(response => response.json())
     .then(data => {
       console.log("Response:", data);
-      setResponseOutput(data.verdict);
-      // Handle response here
+      setResponseOutput(data); // Set response data directly
     })
     .catch((error) => {
       console.error("Error:", error);
@@ -65,7 +64,8 @@ function ProblemDetail() {
       setSubmitting(false);
     });
   };
-let navigate = useNavigate();
+
+  let navigate = useNavigate();
 
   const handleForumSubmit = (e) => {
     navigate('/forum/' + problem.code);
@@ -104,7 +104,7 @@ let navigate = useNavigate();
         <button
           className="submit-button"
           onClick={handleForumSubmit}
-          >
+        >
           Forum
         </button>
         <button
@@ -117,7 +117,10 @@ let navigate = useNavigate();
         {responseOutput && (
           <div className="output-container">
             <h2>Output:</h2>
-            <pre>{responseOutput}</pre>
+            <p><strong>Verdict:</strong> {responseOutput.verdict}</p>
+            <p><strong>Test Cases Passed:</strong> {responseOutput.test_cases_passed} / {responseOutput.total_test_cases}</p>
+            <p><strong>Time Taken:</strong> {responseOutput.time_taken} seconds</p>
+            <p><strong>Memory Taken:</strong> {responseOutput.memory_taken} MB</p>
           </div>
         )}
       </div>

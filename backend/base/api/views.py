@@ -5,6 +5,8 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view as view, permission_classes
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 import subprocess
+import time
+import psutil
 
 from django.contrib.auth.models import User
 from django.http import HttpResponse
@@ -172,6 +174,7 @@ def post_message(request, id):
     forum.save()
     return JsonResponse({"Message": "Message posted successfully"}, status=201)
 
+
 @view(['POST'])
 @permission_classes([IsAuthenticated])
 def execute_code(request):
@@ -208,6 +211,7 @@ def execute_code(request):
             return Response({"error": "No test cases found for this problem"}, status=status.HTTP_400_BAD_REQUEST)
 
         verdict = "Accepted"
+        passed_test_cases = 0
         total_time = 0
         total_memory = 0
 
@@ -220,8 +224,7 @@ def execute_code(request):
             )
             if compile_result.returncode != 0:
                 verdict = "Compilation Error"
-                return Response({"verdict": verdict, "output": compile_result.stderr}, status=status.HTTP_200_OK)
-        
+                generated_output = compile_result.stderr
         elif lang == "cpp":
             compile_result = subprocess.run(
                 ["g++", file_path, "-o", os.path.join(output_folder_path, uniquename)],
@@ -230,53 +233,78 @@ def execute_code(request):
             )
             if compile_result.returncode != 0:
                 verdict = "Compilation Error"
-                return Response({"verdict": verdict, "output": compile_result.stderr}, status=status.HTTP_200_OK)
+                generated_output = compile_result.stderr
 
         if verdict != "Compilation Error":
             for test_case in test_cases:
                 input_file_path = test_case.inputs.path
                 expected_output_file_path = test_case.outputs.path
+                generated_output_file_path = os.path.join(output_folder_path, f"{uniquename}_output_{test_case.id}.txt")
 
                 if lang in ["c", "cpp"]:
                     exec_command = [os.path.join(output_folder_path, uniquename)]
                 else:  # lang == "py"
                     exec_command = ["python", file_path]
 
-                with open(input_file_path, "r") as input_file:
-                    exec_result = subprocess.run(
-                        exec_command,
-                        stdin=input_file,
-                        capture_output=True,
-                        text=True
-                    )
+                with open(input_file_path, "r") as input_file, open(generated_output_file_path, "w") as output_file:
+                    start_time = time.time()
+                    process = subprocess.Popen(exec_command, stdin=input_file, stdout=output_file, stderr=subprocess.PIPE, text=True)
+                    try:
+                        process.wait(timeout=problem.time_limit)
+                        end_time = time.time()
+                        total_time += end_time - start_time
 
-                total_time += exec_result.returncode  # Placeholder for actual time tracking
-                total_memory += 0  # Placeholder for actual memory tracking
-                generated_output = exec_result.stdout if exec_result.returncode == 0 else exec_result.stderr
+                        # Memory usage
+                        try:
+                            process_memory = psutil.Process(process.pid).memory_info().rss / (1024 * 1024)  # in MB
+                            total_memory += process_memory
+                        except psutil.NoSuchProcess:
+                            pass
 
-                with open(expected_output_file_path, "r") as expected_output_file:
-                    expected_output = expected_output_file.read()
+                    except subprocess.TimeoutExpired:
+                        process.kill()
+                        verdict = "Time Limit Exceeded"
+                        break
 
-                if generated_output.strip() != expected_output.strip():
-                    verdict = "Wrong Answer"
-                    break
+                    if process.returncode != 0:
+                        verdict = "Runtime Error"
+                        break
+
+                    with open(expected_output_file_path, "r") as expected_output_file, open(generated_output_file_path, "r") as generated_output_file:
+                        expected_output = expected_output_file.read().strip()
+                        generated_output = generated_output_file.read().strip()
+
+                    if generated_output != expected_output:
+                        verdict = "Wrong Answer"
+                        break
+
+                    passed_test_cases += 1
 
         # Save the submission details
         submission = Submission.objects.create(
             problem=problem,
             user=user,
             verdict=verdict,
-            time=total_time,  # Placeholder value
-            memory=total_memory,  # Placeholder value
+            time=total_time,
+            memory=total_memory,
             language=lang
         )
 
-        return Response({"verdict": verdict}, status=status.HTTP_200_OK)
+        total_time = round(total_time, 4)
+
+        response_data = {
+            "verdict": verdict,
+            "test_cases_passed": passed_test_cases,
+            "total_test_cases": test_cases.count(),
+            "time_taken": total_time,
+            "memory_taken": total_memory
+        }
+
+        return Response(response_data, status=status.HTTP_200_OK)
 
     except Problem.DoesNotExist:
         return Response({"error": "Problem not found"}, status=status.HTTP_404_NOT_FOUND)
     except Exception as e:
-        # Log the exception details
         print(f"Exception: {str(e)}")
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
