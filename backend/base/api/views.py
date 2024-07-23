@@ -300,6 +300,13 @@ def execute_code(request):
             "memory_taken": total_memory
         }
 
+        # Update problem stats
+        if verdict == "Accepted":
+            problem.solved += 1
+        problem.attempts += 1
+        problem.accuracy = (problem.solved / problem.attempts) * 100
+        problem.save()
+
         return Response(response_data, status=status.HTTP_200_OK)
 
     except Problem.DoesNotExist:
