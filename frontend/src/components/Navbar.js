@@ -4,7 +4,7 @@ import AuthContext from '../context/AuthContext';
 import './Navbar.css';
 
 const Header = () => {
-  let {user, logoutUser} = useContext(AuthContext);
+  let {user, logoutUser, admin} = useContext(AuthContext);
   return (
     <div>
       <div className="navbar">
@@ -12,6 +12,12 @@ const Header = () => {
         <img src="/Algorithmix.png" alt="Algorithmix" className="logo-img" />
         </a>
         <div className="navbar-right">
+          {admin ? (
+            <Link to="/admin">Admin</Link>
+          ) : null}
+          {admin ? (
+            <Link to="/problem">New Problem</Link>
+          ) : null}
           <a className="active" href="/">Home</a>
           {user ? (
             <Link to="/Login" onClick={logoutUser}>Logout</Link>

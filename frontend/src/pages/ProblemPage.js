@@ -53,7 +53,7 @@ function ProblemDetail() {
     .then(response => response.json())
     .then(data => {
       console.log("Response:", data);
-      setResponseOutput(data.output);
+      setResponseOutput(data.verdict);
       // Handle response here
     })
     .catch((error) => {

@@ -86,55 +86,36 @@ def get_problem(request, id):
 def create_problem(request):
     data = request.data
     problem = Problem.objects.create(
-        code = uuid.uuid4(),
-        title = data['title'],
-        description = data['description'],
-        difficulty = data['difficulty'],
-        time_limit = data['time_limit'],
-        memory_limit = data['memory_limit'],
+        code=data['code'],
+        title=data['title'],
+        description=data['description'],
+        difficulty=data['difficulty'],
+        time_limit=data['time_limit'],
+        memory_limit=data['memory_limit'],
     )
     
     # Handle the upload of the input and output test case files
-    # if 'input_file' in request.FILES and 'output_file' in request.FILES:
-    #     input_file = request.FILES['input_file']
-    #     output_file = request.FILES['output_file']
+    input_files = request.FILES.getlist('input_files')
+    output_files = request.FILES.getlist('output_files')
 
-    #     # Save the input file
-    #     test_case = TestCase.objects.create(problem=problem, input_file=input_file)
+    if input_files and output_files and len(input_files) == len(output_files):
+        for input_file, output_file in zip(input_files, output_files):
+            test_case = TestCase.objects.create(problem=problem, inputs=input_file, outputs=output_file)
+            test_case.save()
+    else:
+        return JsonResponse({"error": "Input and output files are required and should be in pairs"}, status=400)
 
-    #     # Save the output file
-    #     test_case.output_file.save(output_file.name, output_file)
-    # else:
-    #     return JsonResponse({"error": "Input and output files are required"}, status=400)
     problem.save()
 
     return JsonResponse({"Message": "Problem created successfully"}, status=201)
-
-@view(['PUT'])
-@permission_classes([IsAuthenticated, IsAdminUser])
-def update_problem(request, id):
-    try:
-        problem = Problem.objects.get(id=id)
-        data = request.data
-        problem.title = data['title']
-        problem.description = data['description']
-        problem.difficulty = data['difficulty']
-        problem.time_limit = data['time_limit']
-        problem.memory_limit = data['memory_limit']
-        problem.save()
-        return JsonResponse({"Message": "Problem updated successfully"}, status=200)
-    except Problem.DoesNotExist:
-        return JsonResponse({"error": "Problem not found"}, status=404)
-    except Exception as e:
-        return JsonResponse({"error": str(e)}, status=500)
     
-@view(['PUT'])
+@view(['DELETE'])
 @permission_classes([IsAuthenticated, IsAdminUser])
 def delete_problem(request, id):
     try:
-        problem = Problem.objects.get(id=id)
+        problem = Problem.objects.get(code=id)
         problem.delete()
-        return JsonResponse({"Message": "Problem deleted successfully"}, status=200)
+        return JsonResponse({"Message": "Problem deleted successfully"}, status=204)
     except Problem.DoesNotExist:
         return JsonResponse({"error": "Problem not found"}, status=404)
     except Exception as e:
@@ -192,82 +173,117 @@ def post_message(request, id):
     return JsonResponse({"Message": "Message posted successfully"}, status=201)
 
 @view(['POST'])
+@permission_classes([IsAuthenticated])
 def execute_code(request):
+    user = request.user
     lang = request.data.get("lang")
+    problem_code = request.data.get("problem_code")
     code = request.data.get("code")
 
     if lang not in ["c", "cpp", "py"]:
-        return Response(
-            {"error": "Invalid language"}, status=status.HTTP_400_BAD_REQUEST
-        )
+        return Response({"error": "Invalid language"}, status=status.HTTP_400_BAD_REQUEST)
 
     # Create necessary directories
-    folder_name = "InputCodes"
-    os.makedirs(folder_name, exist_ok=True)
-    os.makedirs("GeneratedOutput", exist_ok=True)
+    input_folder = "InputCodes"
+    output_folder = "GeneratedOutput"
+    os.makedirs(input_folder, exist_ok=True)
+    os.makedirs(output_folder, exist_ok=True)
 
     curr_dir = os.getcwd()
-    folder_path = os.path.join(curr_dir, folder_name)
+    input_folder_path = os.path.join(curr_dir, input_folder)
+    output_folder_path = os.path.join(curr_dir, output_folder)
     uniquename = uuid.uuid4().hex
     unique_filename = f"{uniquename}.{lang}"
-    file_path = os.path.join(folder_path, unique_filename)
+    file_path = os.path.join(input_folder_path, unique_filename)
 
     # Write the code to a file
     with open(file_path, "w") as f:
         f.write(code)
 
     try:
-        generated_output = ""
+        problem = Problem.objects.get(code=problem_code)
+        test_cases = TestCase.objects.filter(problem=problem)
+
+        if not test_cases.exists():
+            return Response({"error": "No test cases found for this problem"}, status=status.HTTP_400_BAD_REQUEST)
+
+        verdict = "Accepted"
+        total_time = 0
+        total_memory = 0
+
         # Compilation and execution based on the language
         if lang == "c":
             compile_result = subprocess.run(
-                ["gcc", unique_filename, "-o", uniquename],
-                cwd=folder_path,
+                ["gcc", file_path, "-o", os.path.join(output_folder_path, uniquename)],
                 capture_output=True,
                 text=True
             )
-            if compile_result.returncode == 0:
-                exec_result = subprocess.run(
-                    [os.path.join(folder_path, uniquename)],
-                    capture_output=True,
-                    text=True
-                )
-                generated_output = exec_result.stdout
-            else:
-                generated_output = compile_result.stderr
-
+            if compile_result.returncode != 0:
+                verdict = "Compilation Error"
+                return Response({"verdict": verdict, "output": compile_result.stderr}, status=status.HTTP_200_OK)
+        
         elif lang == "cpp":
             compile_result = subprocess.run(
-                ["g++", unique_filename, "-o", uniquename],
-                cwd=folder_path,
+                ["g++", file_path, "-o", os.path.join(output_folder_path, uniquename)],
                 capture_output=True,
                 text=True
             )
-            if compile_result.returncode == 0:
-                exec_result = subprocess.run(
-                    [os.path.join(folder_path, uniquename)],
-                    capture_output=True,
-                    text=True
-                )
-                generated_output = exec_result.stdout
-            else:
-                generated_output = compile_result.stderr
+            if compile_result.returncode != 0:
+                verdict = "Compilation Error"
+                return Response({"verdict": verdict, "output": compile_result.stderr}, status=status.HTTP_200_OK)
 
-        elif lang == "py":
-            exec_result = subprocess.run(
-                ["python", unique_filename],
-                cwd=folder_path,
-                capture_output=True,
-                text=True
-            )
-            generated_output = exec_result.stdout if exec_result.returncode == 0 else exec_result.stderr
+        if verdict != "Compilation Error":
+            for test_case in test_cases:
+                input_file_path = test_case.inputs.path
+                expected_output_file_path = test_case.outputs.path
 
-        return Response(
-            {"output": generated_output},
-            status=status.HTTP_200_OK
+                if lang in ["c", "cpp"]:
+                    exec_command = [os.path.join(output_folder_path, uniquename)]
+                else:  # lang == "py"
+                    exec_command = ["python", file_path]
+
+                with open(input_file_path, "r") as input_file:
+                    exec_result = subprocess.run(
+                        exec_command,
+                        stdin=input_file,
+                        capture_output=True,
+                        text=True
+                    )
+
+                total_time += exec_result.returncode  # Placeholder for actual time tracking
+                total_memory += 0  # Placeholder for actual memory tracking
+                generated_output = exec_result.stdout if exec_result.returncode == 0 else exec_result.stderr
+
+                with open(expected_output_file_path, "r") as expected_output_file:
+                    expected_output = expected_output_file.read()
+
+                if generated_output.strip() != expected_output.strip():
+                    verdict = "Wrong Answer"
+                    break
+
+        # Save the submission details
+        submission = Submission.objects.create(
+            problem=problem,
+            user=user,
+            verdict=verdict,
+            time=total_time,  # Placeholder value
+            memory=total_memory,  # Placeholder value
+            language=lang
         )
 
+        return Response({"verdict": verdict}, status=status.HTTP_200_OK)
+
+    except Problem.DoesNotExist:
+        return Response({"error": "Problem not found"}, status=status.HTTP_404_NOT_FOUND)
     except Exception as e:
-        return Response(
-            {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
-        )
+        # Log the exception details
+        print(f"Exception: {str(e)}")
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+@view(['GET'])
+@permission_classes([IsAuthenticated])
+def is_admin(request):
+    if request.user.is_staff:
+        return JsonResponse({"Message": "NO"}, status=200)
+    else:
+        return JsonResponse({"Message": "YES"}, status=200)

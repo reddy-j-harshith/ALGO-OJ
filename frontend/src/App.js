@@ -9,6 +9,7 @@ import RegistrationPage from './pages/RegistrationPage';
 import Navbar from './components/Navbar';
 import LoginRoute from './utils/LoginRoute';
 import NotFound from './pages/NotFound';
+import SetProblem from './pages/SetProblem';
 
 function App() {
   return (
@@ -18,6 +19,10 @@ function App() {
           <Navbar />
           <Routes>
             <Route path="/register" element={<RegistrationPage />} />
+            <Route path="/problem" element={
+              <PrivateRoute>
+                <SetProblem />
+            </PrivateRoute>} />
             <Route path="/" element={
               <PrivateRoute>
                 <HomePage />

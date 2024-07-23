@@ -30,8 +30,8 @@ class Problem(models.Model):
 
 class TestCase(models.Model):
     problem = models.ForeignKey(Problem, on_delete=models.CASCADE)
-    inputs = models.CharField(max_length=100)
-    outputs = models.CharField(max_length=100)
+    inputs = models.FileField(upload_to='test_cases/inputs/')
+    outputs = models.FileField(upload_to='test_cases/outputs/')
 
     def __str__(self):
         return 'Test Case: ' + self.problem.title
