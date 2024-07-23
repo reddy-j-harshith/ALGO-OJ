@@ -111,8 +111,9 @@
 
 .output-container {
     margin-top: 20px;
-    background-color: #f7f7f7;
-    border: 1px solid #ddd;
+    background-color: #000;
+    border: 1px solid #333;
+    color: #ddd;
     border-radius: 5px;
     padding: 20px;
 }
