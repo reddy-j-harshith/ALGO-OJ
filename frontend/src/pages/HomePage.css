@@ -22,7 +22,7 @@
 .problem-item {
     list-style-type: none;
     background-color: #000000;
-    border: 1px solid #ccc;
+    border: 1px solid #333;
     border-radius: 5px;
     padding: 15px;
     transition: box-shadow 0.3s ease;

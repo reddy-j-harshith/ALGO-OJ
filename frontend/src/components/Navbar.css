@@ -3,6 +3,7 @@
     overflow: hidden;
     background-color: #000000;
     padding: 10px 20px;
+    border-bottom: 1px solid #333;
 }
   
 /* Style the navbar links */
