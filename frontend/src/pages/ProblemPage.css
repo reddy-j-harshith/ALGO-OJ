@@ -3,7 +3,7 @@
     flex-wrap: wrap;
     margin: 20px auto;
     width: 80%;
-    max-width: 1200px; /* Adjusted to provide more space */
+    max-width: 1200px;
     background-color: #111;
     padding: 20px;
     border-radius: 10px;
@@ -23,7 +23,7 @@
     border: 1px solid #333;
     border-radius: 5px;
     padding: 20px;
-    flex: 1; /* Makes the content fill available space */
+    flex: 1;
     margin-right: 20px;
 }
 
@@ -39,7 +39,7 @@
 }
 
 .editor-container {
-    flex: 1; /* Makes the editor fill available space */
+    flex: 1;
     display: flex;
     flex-direction: column;
 }
@@ -77,13 +77,72 @@
     font-size: 16px;
 }
 
-.code-input {
-    width: 100%;
-    height: 50vh; /* Adjusted to fill half the viewport height */
-    margin-bottom: 20px;
-    border: 1px solid #ddd;
+.test-case-container {
+    margin-top: 20px;
+    color: #ddd;
+}
+
+.test-case {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.test-case textarea {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #333;
+    background-color: #000;
+    margin: 10px 10px 10px 0;
+    color: #ddd;
     border-radius: 5px;
-    resize: vertical;
+    font-size: 16px;
+    resize: none; /* Disable resizing */
+    overflow-y:hidden; /* Enable vertical scrolling */
+    height: 80px; /* Set a fixed height */
+}
+
+.test-case button {
+    width: 35px;
+    height: 35px;
+    padding: 0;
+    background-color: #000;
+    border: 1px solid #333;
+    color: #ddd;
+    border-radius: 30%; /* Make it round */
+    cursor: pointer;
+    font-size: 30px; /* Increase font size for '-' symbol */
+    line-height: 35px; /* Adjust line height */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s ease;
+}
+
+.test-case button:hover {
+    background-color: #ddd;
+    color: #ddd;
+}
+
+.add-test {
+    width: 35px;
+    height: 35px;
+    padding: 0;
+    background-color: #000;
+    border: 1px solid #333;
+    color: #ddd;
+    border-radius: 30%;
+    cursor: pointer;
+    font-size: 30px;
+    line-height: 35px; /* Adjust line height */;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s ease;
+}
+
+.add-test:hover {
+    background-color: #ddd;
+    color: #000;
 }
 
 .submit-button {
@@ -118,6 +177,14 @@
     padding: 20px;
 }
 
+.output-container h2 {
+    margin-bottom: 10px;
+}
+
+.output-container p {
+    margin: 5px 0;
+}
+
 /* Media query for responsive layout */
 @media (max-width: 768px) {
     .problem-detail-container {
@@ -128,6 +195,6 @@
         margin-bottom: 20px;
     }
     .code-input {
-        height: 30vh; /* Adjust height for smaller screens */
+        height: 30vh;
     }
 }

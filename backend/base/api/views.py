@@ -166,7 +166,7 @@ def post_message(request, id):
 
 @view(['POST'])
 @permission_classes([IsAuthenticated])
-def execute_code(request):
+def submit_code(request):
     user = request.user
     lang = request.data.get("lang")
     problem_code = request.data.get("problem_code")
@@ -175,7 +175,6 @@ def execute_code(request):
     if lang not in ["c", "cpp", "py"]:
         return Response({"error": "Invalid language"}, status=status.HTTP_400_BAD_REQUEST)
 
-    # Create necessary directories
     input_folder = "InputCodes"
     output_folder = "GeneratedOutput"
     os.makedirs(input_folder, exist_ok=True)
@@ -303,4 +302,99 @@ def execute_code(request):
     except Exception as e:
         print(f"Exception: {str(e)}")
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@view(['POST'])    
+@permission_classes([IsAuthenticated])
+def execute_code(request):
+    lang = request.data.get('lang')
+    code = request.data.get('code')
+    inputs = request.data.get('inputs')
+
+    if lang not in ["c", "cpp", "py"]:
+        return Response({"error": "Invalid language"}, status=status.HTTP_400_BAD_REQUEST)
     
+    input_folder = "compile_input"
+    output_folder = "compile_output"
+    os.makedirs(input_folder, exist_ok=True)
+    os.makedirs(output_folder, exist_ok=True)
+
+    curr_dir = os.getcwd()
+    input_folder_path = os.path.join(curr_dir, input_folder)
+    output_folder_path = os.path.join(curr_dir, output_folder)
+    unique_name = uuid.uuid4().hex
+    unique_filename = f"{unique_name}.{lang}"
+    file_path = os.path.join(input_folder_path, unique_filename)
+
+    with open(file_path, "w") as f:
+        f.write(code)
+
+    if lang == "c":
+        compile_result = subprocess.run(
+            ["gcc", file_path, "-o", os.path.join(output_folder_path, unique_name)],
+            capture_output=True,
+            text=True
+        )
+        if compile_result.returncode != 0:
+            return Response({"error": "Compilation Error", "output": compile_result.stderr}, status=status.HTTP_400_BAD_REQUEST)
+    elif lang == "cpp":
+        compile_result = subprocess.run(
+            ["g++", file_path, "-o", os.path.join(output_folder_path, unique_name)],
+            capture_output=True,
+            text=True
+        )
+        if compile_result.returncode != 0:
+            return Response({"error": "Compilation Error", "output": compile_result.stderr}, status=status.HTTP_400_BAD_REQUEST)
+
+    output = []
+    runtime = 0
+    memory = 0
+
+    if lang in ["c", "cpp"]:
+        exec_command = [os.path.join(output_folder_path, unique_name)]
+    else:  # lang == "py"
+        exec_command = ["python", file_path]
+
+    for input_data in inputs:
+        input_file_path = os.path.join(input_folder_path, f"{unique_name}_input.txt")
+        output_file_path = os.path.join(output_folder_path, f"{unique_name}_output.txt")
+
+        with open(input_file_path, "w") as input_file:
+            input_file.write(input_data)
+
+        start_time = time.time()
+        process = subprocess.Popen(
+            exec_command,
+            stdin=open(input_file_path, "r"),
+            stdout=open(output_file_path, "w"),
+            stderr=subprocess.PIPE,
+            text=True
+        )
+        try:
+            process.communicate(timeout=5)
+            end_time = time.time()
+            runtime += end_time - start_time
+
+            # Memory usage
+            try:
+                process_info = psutil.Process(process.pid)
+                memory_info = process_info.memory_info()
+                memory += memory_info.rss / 1024  # Convert to KB
+            except psutil.NoSuchProcess:
+                pass
+
+            with open(output_file_path, "r") as output_file:
+                output.append(output_file.read())
+
+        except subprocess.TimeoutExpired:
+            process.kill()
+            return Response({"error": "Time Limit Exceeded"}, status=status.HTTP_400_BAD_REQUEST)
+
+        os.remove(input_file_path)
+
+    response_data = {
+        "output": output,
+        "runtime": round(runtime, 4),
+        "memory": round(memory, 2)
+    }
+
+    return Response(response_data, status=status.HTTP_200_OK)

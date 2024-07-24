@@ -1,9 +1,12 @@
 import React, { useState, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
 import AuthContext from '../context/AuthContext';
 import './SetProblem.css';
 
 const ProblemPage = () => {
     let { authTokens } = useContext(AuthContext);
+    let navigate = useNavigate();
+
     const [problem, setProblem] = useState({
         code: '',
         title: '',
@@ -59,6 +62,15 @@ const ProblemPage = () => {
 
         if (response.status === 201) {
             alert('Problem created successfully');
+            setProblem({
+                code: '',
+                title: '',
+                description: '',
+                difficulty: '',
+                time_limit: '',
+                memory_limit: '',
+            });
+            setTestCases([{ input: '', output: '' }]);
         } else {
             alert('Error creating problem');
         }
@@ -80,6 +92,7 @@ const ProblemPage = () => {
 
         if (response.status === 204) {
             alert('Problem deleted successfully');
+            setDeleteCode('');
         } else {
             alert('Error deleting problem');
         }

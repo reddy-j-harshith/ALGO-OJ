@@ -1,24 +1,26 @@
 import React, { useState, useEffect, useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Editor } from "@monaco-editor/react"; // Import the Monaco Editor
-import "./ProblemPage.css"; // Import the CSS file
+import { Editor } from "@monaco-editor/react";
+import "./ProblemPage.css";
 import AuthContext from "../context/AuthContext";
 
-function ProblemDetail() {
+function ProblemPage() {
   const { code } = useParams();
   const [problem, setProblem] = useState(null);
   const [codeInput, setCodeInput] = useState("");
-  const [selectedLanguage, setSelectedLanguage] = useState("c"); // Default to 'c'
+  const [selectedLanguage, setSelectedLanguage] = useState("c");
   const [submitting, setSubmitting] = useState(false);
   const [responseOutput, setResponseOutput] = useState(null);
+  const [testCases, setTestCases] = useState([""]);
+  const [testOutput, setTestOutput] = useState([]);
 
-  let { authTokens } = useContext(AuthContext); // Retrieve access token from local storage
+  let { authTokens } = useContext(AuthContext);
 
   useEffect(() => {
     fetch(`http://localhost:8000/api/get_problem/${code}/`, {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${authTokens?.access}`, // Include access token in Authorization header
+        'Authorization': `Bearer ${authTokens?.access}`,
       },
     })
     .then(response => response.json())
@@ -30,22 +32,67 @@ function ProblemDetail() {
     });
   }, [code, authTokens]);
 
-  const handleSubmit = () => {
-    // Handle code submission here
+  const handleAddTestCase = () => {
+    setTestCases([...testCases, ""]);
+  };
+
+  const handleRemoveTestCase = (index) => {
+    const newTestCases = testCases.filter((_, i) => i !== index);
+    setTestCases(newTestCases);
+  };
+
+  const handleTestCaseChange = (index, value) => {
+    const newTestCases = [...testCases];
+    newTestCases[index] = value;
+    setTestCases(newTestCases);
+  };
+
+  const handleTestCode = () => {
     setSubmitting(true);
-    // Example: Send code and selected language to backend for processing
+    console.log("Testing code:", codeInput);
+    console.log("Selected language:", selectedLanguage);
+
+    const requestData = {
+      lang: selectedLanguage,
+      code: codeInput,
+      inputs: testCases
+    };
+
+    fetch("http://localhost:8000/api/execute_code/", {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${authTokens?.access}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestData),
+    })
+    .then(response => response.json())
+    .then(data => {
+      console.log("Test Response:", data);
+      setTestOutput(data.output);
+    })
+    .catch((error) => {
+      console.error("Error:", error);
+    })
+    .finally(() => {
+      setSubmitting(false);
+    });
+  };
+
+  const handleSubmit = () => {
+    setSubmitting(true);
     console.log("Submitted code:", codeInput);
     console.log("Selected language:", selectedLanguage);
 
     const formData = new URLSearchParams();
     formData.append("lang", selectedLanguage);
-    formData.append("problem_code", code); // Assuming problemCode is available
+    formData.append("problem_code", code);
     formData.append("code", codeInput);
 
-    fetch("http://localhost:8000/api/execute_code/", {
+    fetch("http://localhost:8000/api/submit_code/", {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${authTokens?.access}`, // Include access token in Authorization header
+        'Authorization': `Bearer ${authTokens?.access}`,
         'Content-Type': 'application/x-www-form-urlencoded',
       },
       body: formData,
@@ -53,14 +100,12 @@ function ProblemDetail() {
     .then(response => response.json())
     .then(data => {
       console.log("Response:", data);
-      setResponseOutput(data); // Set response data directly
+      setResponseOutput(data);
     })
     .catch((error) => {
       console.error("Error:", error);
     })
     .finally(() => {
-      // Reset code input
-      setCodeInput("");
       setSubmitting(false);
     });
   };
@@ -101,6 +146,20 @@ function ProblemDetail() {
             <option value="py">Python</option>
           </select>
         </div>
+        <div className="test-case-container">
+          <h3>Test Cases</h3>
+          {testCases.map((testCase, index) => (
+            <div key={index} className="test-case">
+              <textarea
+                value={testCase}
+                onChange={(e) => handleTestCaseChange(index, e.target.value)}
+                placeholder={`Test Case ${index + 1}`}
+              />
+              <button onClick={() => handleRemoveTestCase(index)}>-</button>
+            </div>
+          ))}
+          <button onClick={handleAddTestCase} className = "add-test">+</button>
+        </div>
         <button
           className="submit-button"
           onClick={handleForumSubmit}
@@ -109,11 +168,26 @@ function ProblemDetail() {
         </button>
         <button
           className="submit-button"
+          onClick={handleTestCode}
+          disabled={submitting}
+        >
+          {submitting ? "Testing..." : "Test Code"}
+        </button>
+        <button
+          className="submit-button"
           onClick={handleSubmit}
           disabled={submitting}
         >
           {submitting ? "Submitting..." : "Submit"}
         </button>
+        {testOutput && (
+          <div className="output-container">
+            <h2>Output:</h2>
+            {testOutput.map((output, index) => (
+              <p key={index}><strong>Test Case {index + 1}:</strong> {output}</p>
+            ))}
+          </div>
+        )}
         {responseOutput && (
           <div className="output-container">
             <h2>Output:</h2>
@@ -128,4 +202,4 @@ function ProblemDetail() {
   );
 }
 
-export default ProblemDetail;
+export default ProblemPage;
