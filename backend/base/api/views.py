@@ -15,7 +15,7 @@ from django.http import HttpResponse
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 
-from .serializers import ProblemSerializer, ForumSerializer
+from .serializers import ProblemSerializer, ForumSerializer, SubmissionSerializer
 from base.models import Problem, Submission, TestCase, Forum
 
 
@@ -304,7 +304,6 @@ def submit_code(request):
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @view(['POST'])    
-@permission_classes([IsAuthenticated])
 def execute_code(request):
     lang = request.data.get('lang')
     code = request.data.get('code')
@@ -398,3 +397,21 @@ def execute_code(request):
     }
 
     return Response(response_data, status=status.HTTP_200_OK)
+
+@view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_submissions(request):
+    user = request.user
+    submissions = Submission.objects.filter(user=user)
+    serializer = ProblemSerializer(submissions, many=True)
+    return Response(serializer.data)
+
+@view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_last_submission(request):
+    user = request.data.get('user')
+    problem_code = request.data.get('problem')
+
+    submission = Submission.objects.filter(user=user, problem=problem_code).order_by('-submission_date').first()
+    serializer = ProblemSerializer(submission, many=False)
+    return Response(serializer.data)

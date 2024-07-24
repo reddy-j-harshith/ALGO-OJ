@@ -1,3 +1,4 @@
+from re import sub
 from django.db import models
 from django.db.models.signals import post_delete
 from django.dispatch import receiver
@@ -55,6 +56,8 @@ class Submission(models.Model):
     time = models.FloatField()
     memory = models.FloatField()
     language = models.CharField(max_length=100)
+    code = models.TextField(default="")
+    submission_date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return 'Submission: ' + self.problem.title
