@@ -10,6 +10,7 @@ import Navbar from './components/Navbar';
 import LoginRoute from './utils/LoginRoute';
 import NotFound from './pages/NotFound';
 import SetProblem from './pages/SetProblem';
+import IDEPage from './pages/IDEpage';
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
         <AuthProvider>
           <Navbar />
           <Routes>
+            <Route path="/ide" element={<IDEPage />} />
             <Route path="/register" element={<RegistrationPage />} />
             <Route path="/problem" element={
               <PrivateRoute>
