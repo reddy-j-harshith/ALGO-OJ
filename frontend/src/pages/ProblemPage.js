@@ -15,6 +15,7 @@ function ProblemPage() {
   const [testOutput, setTestOutput] = useState([]);
 
   let { authTokens } = useContext(AuthContext);
+  let { user } = useContext(AuthContext);
 
   useEffect(() => {
     fetch(`http://localhost:8000/api/get_problem/${code}/`, {
@@ -30,7 +31,35 @@ function ProblemPage() {
     .catch((error) => {
       console.error("Error fetching problem detail:", error);
     });
-  }, [code, authTokens]);
+
+    const fetchLastSubmission = () => {
+      if (!authTokens || !code) return; // Ensure auth tokens and problem code are available
+  
+      fetch(`http://localhost:8000/api/get_last_submission/${user.user_id}/${code}/`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${authTokens?.access}`,
+          'Content-Type': 'application/json',
+        },
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Failed to fetch last submission');
+        }
+        return response.json();
+      })
+      .then(data => {
+        console.log("Last submission:", data);
+        setCodeInput(data.code);
+        setSelectedLanguage(data.lang);
+      })
+      .catch((error) => {
+        console.error("Error fetching last submission:", error);
+      });
+    };
+  
+    fetchLastSubmission();
+  }, []);
 
   const handleAddTestCase = () => {
     setTestCases([...testCases, ""]);

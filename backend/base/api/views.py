@@ -274,7 +274,8 @@ def submit_code(request):
             verdict=verdict,
             time=total_time,
             memory=total_memory,
-            language=lang
+            language=lang,
+            code=code
         )
 
         submission.save()
@@ -400,18 +401,17 @@ def execute_code(request):
 
 @view(['GET'])
 @permission_classes([IsAuthenticated])
-def get_submissions(request):
-    user = request.user
-    submissions = Submission.objects.filter(user=user)
-    serializer = ProblemSerializer(submissions, many=True)
+def get_submissions(request, id, code):
+    submissions = Submission.objects.filter(user=id, problem=code)
+    serializer = SubmissionSerializer(submissions, many=True)
     return Response(serializer.data)
 
 @view(['GET'])
 @permission_classes([IsAuthenticated])
-def get_last_submission(request):
-    user = request.data.get('user')
-    problem_code = request.data.get('problem')
+def get_last_submission(request, id, code):
 
-    submission = Submission.objects.filter(user=user, problem=problem_code).order_by('-submission_date').first()
-    serializer = ProblemSerializer(submission, many=False)
+    problem = Problem.objects.get(code=code)
+
+    submission = Submission.objects.filter(user=id, problem=problem).order_by('-submission_date').first()
+    serializer = SubmissionSerializer(submission, many=False)
     return Response(serializer.data)
