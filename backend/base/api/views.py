@@ -1,12 +1,13 @@
-import code
-from django.http import JsonResponse
-from rest_framework import status
-from rest_framework.response import Response
-from rest_framework.decorators import api_view as view, permission_classes
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
-import subprocess
+import os
+import uuid
 import time
 import psutil
+import subprocess
+from rest_framework import status
+from django.http import JsonResponse
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.decorators import api_view as view, permission_classes
 
 from django.contrib.auth.models import User
 from django.http import HttpResponse
@@ -16,9 +17,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 
 from .serializers import ProblemSerializer, ForumSerializer
 from base.models import Problem, Submission, TestCase, Forum
-import uuid
 
-import os
 
 # Create your views here.
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
@@ -28,6 +27,7 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
 
         # Add custom claims
         token['username'] = user.username
+        token['is_staff'] = user.is_staff
         # ...
 
         return token
@@ -35,22 +35,11 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
 class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
 
-@view(['GET'])
-def getRoutes(request):
-    routes = [
-        '/api/token',
-        '/api/token/refresh',
-    ]
-
-    return Response(routes)
-
 @view(['POST'])
 def register_user(request):
 
     username = request.data.get("username")
     password = request.data.get("password")
-    firstname = request.data.get("firstname")
-    lastname = request.data.get("lastname")
     email = request.data.get("email")
 
     user = User.objects.filter(username = username)
@@ -58,7 +47,7 @@ def register_user(request):
     if user.exists():
         return JsonResponse({"Message": "User name already exists"}, status=409)
 
-    user = User.objects.create_user(username = username, password = password, first_name = firstname, last_name = lastname, email = email)
+    user = User.objects.create_user(username = username, password = password, email = email)
     user.save()
 
     return JsonResponse({"Message": "User created successfully"}, status=201)
@@ -280,7 +269,6 @@ def execute_code(request):
 
                     passed_test_cases += 1
 
-        # Save the submission details
         submission = Submission.objects.create(
             problem=problem,
             user=user,
@@ -289,6 +277,8 @@ def execute_code(request):
             memory=total_memory,
             language=lang
         )
+
+        submission.save()
 
         total_time = round(total_time, 4)
 
@@ -300,7 +290,6 @@ def execute_code(request):
             "memory_taken": total_memory
         }
 
-        # Update problem stats
         if verdict == "Accepted":
             problem.solved += 1
         problem.attempts += 1
@@ -315,10 +304,3 @@ def execute_code(request):
         print(f"Exception: {str(e)}")
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
-@view(['GET'])
-@permission_classes([IsAuthenticated])
-def is_admin(request):
-    if request.user.is_staff:
-        return JsonResponse({"Message": "NO"}, status=200)
-    else:
-        return JsonResponse({"Message": "YES"}, status=200)

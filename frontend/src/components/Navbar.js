@@ -12,11 +12,11 @@ const Header = () => {
         <img src="/Algorithmix.png" alt="Algorithmix" className="logo-img" />
         </a>
         <div className="navbar-right">
-          {admin ? (
-            <Link to="/admin">Admin</Link>
+          {(admin && user)? (
+            <Link to="/admin">Panel</Link>
           ) : null}
-          {admin ? (
-            <Link to="/problem">New Problem</Link>
+          {(admin && user)? (
+            <Link to="/problem">Problem</Link>
           ) : null}
           <a className="active" href="/">Home</a>
           {user ? (

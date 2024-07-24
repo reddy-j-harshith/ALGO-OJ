@@ -10,7 +10,7 @@ export default AuthContext;
 export const AuthProvider = ({children}) => {
     let [authTokens, setAuthTokens] = useState(()=> localStorage.getItem('authTokens') ? JSON.parse(localStorage.getItem('authTokens')) : null)
     let [user, setUser] = useState(()=> localStorage.getItem('authTokens') ? jwtDecode(localStorage.getItem('authTokens')) : null)
-    let [admin, setAdmin] = useState(true)
+    let [admin, setAdmin] = useState(false)
 
     const navigate = useNavigate()
 
@@ -28,6 +28,7 @@ export const AuthProvider = ({children}) => {
         if(response.status === 200){
             setAuthTokens(data)
             setUser(jwtDecode(data.access))
+            setAdmin(jwtDecode(data.access).is_staff)
             // isAdmin();
             localStorage.setItem('authTokens', JSON.stringify(data))
             navigate('/')
@@ -40,6 +41,7 @@ export const AuthProvider = ({children}) => {
     let logoutUser = () => {
         setAuthTokens(null)
         setUser(null)
+        setAdmin(false)
         localStorage.removeItem('authTokens')
         navigate('/login')
     }
@@ -60,6 +62,8 @@ export const AuthProvider = ({children}) => {
         if (response.status === 200){
             setAuthTokens(data)
             setUser(jwtDecode(data.access))
+            setAdmin(jwtDecode(data.access).is_staff)
+            console.log(jwtDecode(data.access).is_staff)
             localStorage.setItem('authTokens', JSON.stringify(data))
         }else{
             logoutUser()
@@ -67,29 +71,6 @@ export const AuthProvider = ({children}) => {
 
     }
 
-    let isAdmin = async () => {
-        fetch('/is_admin/', {
-            method: 'GET',
-            headers: {
-              'Authorization': `Bearer ${authTokens.access}`
-            }
-          })
-          .then(response => response.json())
-          .then(data => {
-            // Check the response to determine if the user is an admin
-            if (data.Message === 'YES') {
-              setAdmin(true)
-              console.log('User is an admin');
-            } else {
-              setAdmin(false)
-              console.log('User is not an admin');
-            }
-          })
-          .catch(error => {
-            // Handle any errors that occur during the request
-            console.error('Error:', error);
-        });
-    }
 
     let contextData = {
         authTokens: authTokens,
