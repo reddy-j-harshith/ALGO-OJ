@@ -11,6 +11,7 @@ import LoginRoute from './utils/LoginRoute';
 import NotFound from './pages/NotFound';
 import SetProblem from './pages/SetProblem';
 import IDEPage from './pages/IDEpage';
+import AdminPanel from './pages/AdminPanel';
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
         <AuthProvider>
           <Navbar />
           <Routes>
+            <Route path="/admin" element={<AdminPanel />} />
             <Route path="/ide" element={<IDEPage />} />
             <Route path="/register" element={<RegistrationPage />} />
             <Route path="/problem" element={

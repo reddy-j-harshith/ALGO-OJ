@@ -2,15 +2,17 @@ import React, { useState, useEffect, useContext } from 'react'
 import { Link } from 'react-router-dom'
 import AuthContext from '../context/AuthContext'
 import './HomePage.css'
+import ReactPaginate from 'react-paginate';
 
 const HomePage = () => {
 
   let [ problems, setProblems ] = useState([])
+  let [ pageCount, setPageCount ] = useState(0)
   let { authTokens } = useContext(AuthContext)
   let { logoutUser } = useContext(AuthContext)
   
-  let getProblems = async () => {
-    let response = await fetch('http://localhost:8000/api/get_latest/', {
+  let getProblems = async (currentPage = 1) => {
+    let response = await fetch(`http://localhost:8000/api/get_latest/?page=${currentPage}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -22,30 +24,65 @@ const HomePage = () => {
     console.log(response)
 
     if(response.status === 200){
-      setProblems(data)
+      setProblems(data.results)
+      setPageCount(Math.ceil(data.count / 10))
     } else if (response.status === 401) {
       logoutUser()
     }
   }
-  
-    useEffect(() => {
-      getProblems()
-    }, [])
-  
+
+  useEffect(() => {
+    getProblems()
+  }, [])
+
+  const handlePageClick = (data) => {
+    let selectedPage = data.selected + 1
+    getProblems(selectedPage)
+  }
+
   return (
     <div className="problem-list-container">
       <h2 className="problem-list-title">Latest Problems</h2>
       <div className="problem-list">
-        {problems.map((problem) => (
-          <div key={problem.code} className="problem-item">
-            <Link to={`/get_problem/${problem.code}`} className="problem-link">
-              <div className="problem-info">
-                {problem.title}
-              </div>
-            </Link>
-          </div>
-        ))}
+        <table className="problem-table">
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Difficulty</th>
+              <th>Solved</th>
+              <th>Attempts</th>
+              <th>Accuracy</th>
+            </tr>
+          </thead>
+          <tbody>
+            {problems.map((problem) => (
+              <tr key={problem.code} className="problem-link-row">
+                <td>
+                  <Link to={`/get_problem/${problem.code}`} className="problem-link">
+                    {problem.title}
+                  </Link>
+                </td>
+                <td>{problem.difficulty}</td>
+                <td>{problem.solved}</td>
+                <td>{problem.attempts}</td>
+                <td>{isNaN(((problem.solved / problem.attempts) * 100).toFixed(2)) ? '-' : ((problem.solved / problem.attempts) * 100).toFixed(2) + '%'}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
+      <ReactPaginate
+        previousLabel={"<"}
+        nextLabel={">"}
+        breakLabel={"..."}
+        pageCount={pageCount}
+        marginPagesDisplayed={2}
+        pageRangeDisplayed={5}
+        onPageChange={handlePageClick}
+        containerClassName={"pagination"}
+        subContainerClassName={"pages pagination"}
+        activeClassName={"active"}
+      />
     </div>
   )
 }

@@ -1,0 +1,122 @@
+/* AdminPanel.css */
+
+.admin-panel {
+    margin: 20px auto;
+    width: 80%;
+    max-width: 1200px;
+    background-color: #111;
+    padding: 20px;
+    border-radius: 10px;
+}
+
+.admin-panel h1 {
+    font-size: 24px;
+    margin-bottom: 20px;
+    color: #eee;
+}
+
+.admin-panel table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #000;
+    table-layout: fixed; /* Add this line to ensure fixed table layout */
+}
+
+.admin-panel th, .admin-panel td {
+    padding: 10px;
+    border: 1px solid #333;
+    text-align: left;
+    color: #ddd;
+    overflow: hidden; /* Ensure content that exceeds the width is hidden */
+    text-overflow: ellipsis; /* Add ellipsis for overflow text */
+    white-space: nowrap; /* Prevent text from wrapping to the next line */
+}
+
+/* Set fixed widths for each column */
+.admin-panel th:nth-child(1), .admin-panel td:nth-child(1) {
+    width: 10%;
+}
+
+.admin-panel th:nth-child(2), .admin-panel td:nth-child(2) {
+    width: 20%;
+}
+
+.admin-panel th:nth-child(3), .admin-panel td:nth-child(3) {
+    width: 25%;
+}
+
+.admin-panel th:nth-child(4), .admin-panel td:nth-child(4) {
+    width: 15%;
+}
+
+.admin-panel th:nth-child(5), .admin-panel td:nth-child(5) {
+    width: 20%;
+}
+
+.admin-panel th {
+    background-color: #222;
+}
+
+.admin-panel tr {
+    height: 60px;
+}
+
+.admin-panel td {
+    background-color: #000;
+    min-height: 50px;
+}
+
+.admin-panel button {
+    padding: 5px 10px;
+    background-color: #000;
+    border: 1px solid #333;
+    color: #ddd;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.admin-panel button:hover {
+    background-color: #eee;
+    color: #111;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    padding: 20px 0;
+}
+
+.pagination a {
+    margin: 0 5px;
+    padding: 10px 15px;
+    border: 1px solid #333;
+    color: #ddd;
+    text-decoration: none;
+    border-radius: 5px;
+    background-color: #000;
+    transition: background-color 0.3s ease;
+}
+
+.pagination a:hover {
+    background-color: #222;
+}
+
+.pagination .active a {
+    background-color: #eee;
+    color: #111;
+    border-color: #eee;
+}
+
+.pagination .disabled a {
+    background-color: #333;
+    color: #666;
+    cursor: not-allowed;
+}
+
+.loading {
+    text-align: center;
+    font-size: 18px;
+    margin-top: 50px;
+    color: #ddd;
+}

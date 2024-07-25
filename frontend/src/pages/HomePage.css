@@ -1,7 +1,7 @@
 .problem-list-container {
     margin: 20px auto;
-    width: 80%; /* Adjust the width as needed */
-    max-width: 500px; /* Add a maximum width */
+    width: 80%;
+    max-width: 900px;
     text-align: center;
 }
 
@@ -13,52 +13,80 @@
 }
 
 .problem-list {
-    /* display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); */
-    gap: 70px;
-
+    width: 100%;
+    background-color: #111; /* Background color for the container */
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-.problem-item {
-    list-style-type: none;
-    background-color: #000000;
-    border: 1px solid #333;
-    border-radius: 5px;
-    padding: 15px;
-    transition: box-shadow 0.3s ease;
-}
-
-.problem-item:hover {
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
-
-.problem-info {
-    margin: 2px 5px;
-    color: rgb(255, 255, 255);
-}
-
-.problem-name {
-    font-size: 18px;
-    font-weight: bold;
-    color: #333;
-}
-
-.problem-code {
-    font-size: 16px;
-    color: #666;
-}
-
-.problem-link {
-    display: block;
-    text-align: center;
-    padding: 0px 0;
+.problem-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #333; /* Slightly lighter background for the table */
     color: #fff;
     border-radius: 5px;
-    text-decoration: none;
+    overflow: hidden;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.problem-table th,
+.problem-table td {
+    padding: 15px 10px;
     text-align: center;
+    border: 1px solid #333; /* Light border color */
+}
+
+.problem-table th {
+    background-color: #222; /* Darker background for headers */
+    text-shadow: #000 1px 1px 1px;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.problem-table td {
+    background-color: #000;
     transition: background-color 0.3s ease;
 }
 
-.problem-link:hover {
-    background-color: #000000;
+.problem-link-row:hover td {
+    background-color: #444;
+}
+
+.problem-link {
+    color: #fff;
+    text-decoration: none;
+    display: block;
+    width: 100%;
+}
+
+/* Pagination Styles */
+.pagination {
+    display: flex;
+    justify-content: center;
+    padding: 20px 0;
+}
+
+.pagination li {
+    display: inline;
+    margin: 0 5px;
+}
+
+.pagination li a {
+    color: #fff;
+    padding: 8px 16px;
+    text-decoration: none;
+    background-color: #1c1c1c;
+    border: 1px solid #444;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.pagination li a:hover {
+    background-color: #333;
+}
+
+.pagination .active a {
+    background-color: #1e90ff;
+    border-color: #1e90ff;
 }

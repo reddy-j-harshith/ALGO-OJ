@@ -6,6 +6,7 @@ import subprocess
 from rest_framework import status
 from django.http import JsonResponse
 from rest_framework.response import Response
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.decorators import api_view as view, permission_classes
 
@@ -15,20 +16,17 @@ from django.http import HttpResponse
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 
-from .serializers import ProblemSerializer, ForumSerializer, SubmissionSerializer
 from base.models import Problem, Submission, TestCase, Forum
+from .serializers import ProblemSerializer, ForumSerializer, SubmissionSerializer, UserSerializer
 
 
-# Create your views here.
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
     def get_token(cls, user):
         token = super().get_token(user)
 
-        # Add custom claims
         token['username'] = user.username
         token['is_staff'] = user.is_staff
-        # ...
 
         return token
     
@@ -55,9 +53,13 @@ def register_user(request):
 @view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_latest_problems(request):
-    problems = Problem.objects.all().order_by('-date')[:5]
-    serializer = ProblemSerializer(problems, many = True)
-    return Response(serializer.data)
+    paginator = PageNumberPagination()
+    paginator.page_size = 10
+    problems = Problem.objects.all().order_by('-date')
+    result_page = paginator.paginate_queryset(problems, request)
+    serializer = ProblemSerializer(result_page, many=True)
+    return paginator.get_paginated_response(serializer.data)
+
 
 @view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -85,7 +87,7 @@ def create_problem(request):
         memory_limit=data['memory_limit'],
     )
     
-    # Handle the upload of the input and output test case files
+
     input_files = request.FILES.getlist('input_files')
     output_files = request.FILES.getlist('output_files')
 
@@ -112,6 +114,20 @@ def delete_problem(request, id):
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
     
+@view(['GET'])
+@permission_classes([IsAuthenticated, IsAdminUser])
+def list_users(request):
+    paginator = PageNumberPagination()
+    page_size = request.GET.get('page_size', 10)  # Default to 10 if not provided
+    paginator.page_size = int(page_size)
+    users = User.objects.all().order_by('id')
+    result_page = paginator.paginate_queryset(users, request)
+    serializer = UserSerializer(result_page, many=True)
+    response = paginator.get_paginated_response(serializer.data)
+    response.data['total'] = users.count()  # Add total count
+    return response
+ 
+
 @view(['PUT'])
 @permission_classes([IsAuthenticated, IsAdminUser])
 def give_admin(request, id):
@@ -187,7 +203,6 @@ def submit_code(request):
     unique_filename = f"{uniquename}.{lang}"
     file_path = os.path.join(input_folder_path, unique_filename)
 
-    # Write the code to a file
     with open(file_path, "w") as f:
         f.write(code)
 
@@ -203,7 +218,6 @@ def submit_code(request):
         total_time = 0
         total_memory = 0
 
-        # Compilation and execution based on the language
         if lang == "c":
             compile_result = subprocess.run(
                 ["gcc", file_path, "-o", os.path.join(output_folder_path, uniquename)],
@@ -231,7 +245,7 @@ def submit_code(request):
 
                 if lang in ["c", "cpp"]:
                     exec_command = [os.path.join(output_folder_path, uniquename)]
-                else:  # lang == "py"
+                else: 
                     exec_command = ["python", file_path]
 
                 with open(input_file_path, "r") as input_file, open(generated_output_file_path, "w") as output_file:
@@ -242,7 +256,6 @@ def submit_code(request):
                         end_time = time.time()
                         total_time += end_time - start_time
 
-                        # Memory usage
                         try:
                             process_memory = psutil.Process(process.pid).memory_info().rss / (1024 * 1024)  # in MB
                             total_memory += process_memory
@@ -351,7 +364,7 @@ def execute_code(request):
 
     if lang in ["c", "cpp"]:
         exec_command = [os.path.join(output_folder_path, unique_name)]
-    else:  # lang == "py"
+    else:
         exec_command = ["python", file_path]
 
     for input_data in inputs:
@@ -374,11 +387,11 @@ def execute_code(request):
             end_time = time.time()
             runtime += end_time - start_time
 
-            # Memory usage
+
             try:
                 process_info = psutil.Process(process.pid)
                 memory_info = process_info.memory_info()
-                memory += memory_info.rss / 1024  # Convert to KB
+                memory += memory_info.rss / 1024
             except psutil.NoSuchProcess:
                 pass
 
