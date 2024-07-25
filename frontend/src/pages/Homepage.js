@@ -62,10 +62,26 @@ const HomePage = () => {
                     {problem.title}
                   </Link>
                 </td>
-                <td>{problem.difficulty}</td>
-                <td>{problem.solved}</td>
-                <td>{problem.attempts}</td>
-                <td>{isNaN(((problem.solved / problem.attempts) * 100).toFixed(2)) ? '-' : ((problem.solved / problem.attempts) * 100).toFixed(2) + '%'}</td>
+                <td>
+                  <Link to={`/get_problem/${problem.code}`} className="problem-link">
+                    {problem.difficulty}
+                  </Link>
+                </td>
+                <td>
+                  <Link to={`/get_problem/${problem.code}`} className="problem-link">
+                    {problem.solved}
+                  </Link>
+                </td>
+                <td>
+                  <Link to={`/get_problem/${problem.code}`} className="problem-link">
+                    {problem.attempts}
+                  </Link>
+                </td>
+                <td>
+                  <Link to={`/get_problem/${problem.code}`} className="problem-link">
+                    {isNaN(((problem.solved / problem.attempts) * 100).toFixed(2)) ? '-' : ((problem.solved / problem.attempts) * 100).toFixed(2) + '%'}
+                  </Link>
+                </td>
               </tr>
             ))}
           </tbody>

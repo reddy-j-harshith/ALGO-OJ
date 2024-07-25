@@ -1,3 +1,5 @@
+/* Homepage.css */
+
 .problem-list-container {
     margin: 20px auto;
     width: 80%;
@@ -28,6 +30,7 @@
     border-radius: 5px;
     overflow: hidden;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    table-layout: fixed; /* Add this line to ensure fixed table layout */
 }
 
 .problem-table th,
@@ -35,6 +38,30 @@
     padding: 15px 10px;
     text-align: center;
     border: 1px solid #333; /* Light border color */
+    overflow: hidden; /* Ensure content that exceeds the width is hidden */
+    text-overflow: ellipsis; /* Add ellipsis for overflow text */
+    white-space: nowrap; /* Prevent text from wrapping to the next line */
+}
+
+/* Set fixed widths for each column */
+.problem-table th:nth-child(1), .problem-table td:nth-child(1) {
+    width: 30; /* Adjust as needed */
+}
+
+.problem-table th:nth-child(2), .problem-table td:nth-child(2) {
+    width: 20%; /* Adjust as needed */
+}
+
+.problem-table th:nth-child(3), .problem-table td:nth-child(3) {
+    width: 15%; /* Adjust as needed */
+}
+
+.problem-table th:nth-child(4), .problem-table td:nth-child(4) {
+    width: 15%; /* Adjust as needed */
+}
+
+.problem-table th:nth-child(5), .problem-table td:nth-child(5) {
+    width: 20%; /* Adjust as needed */
 }
 
 .problem-table th {
