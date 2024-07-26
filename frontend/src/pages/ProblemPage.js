@@ -79,7 +79,6 @@ function ProblemPage() {
 
   const handleTestCode = () => {
     setSubmitting(true);
-    setError(null); // Reset error state
     console.log("Testing code:", codeInput);
     console.log("Selected language:", selectedLanguage);
 
@@ -97,21 +96,17 @@ function ProblemPage() {
       },
       body: JSON.stringify(requestData),
     })
-    .then(response => {
-      if (!response.ok) {
-        return response.json().then(err => {
-          throw new Error(err.detail || "Unknown error");
-        });
-      }
-      return response.json();
-    })
+    .then(response => response.json())
     .then(data => {
       console.log("Test Response:", data);
-      setTestOutput(data.output);
+      if (data.error) {
+        setTestOutput([data.output]);
+      } else {
+        setTestOutput(data.output);
+      }
     })
     .catch((error) => {
       console.error("Error:", error);
-      setError(error.message);
     })
     .finally(() => {
       setSubmitting(false);
