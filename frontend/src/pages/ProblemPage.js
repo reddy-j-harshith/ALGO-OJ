@@ -13,6 +13,7 @@ function ProblemPage() {
   const [responseOutput, setResponseOutput] = useState(null);
   const [testCases, setTestCases] = useState([""]);
   const [testOutput, setTestOutput] = useState([]);
+  const [error, setError] = useState(null);
 
   let { authTokens } = useContext(AuthContext);
   let { user } = useContext(AuthContext);
@@ -59,7 +60,7 @@ function ProblemPage() {
     };
   
     fetchLastSubmission();
-  }, []);
+  }, [authTokens, code, user]);
 
   const handleAddTestCase = () => {
     setTestCases([...testCases, ""]);
@@ -78,6 +79,7 @@ function ProblemPage() {
 
   const handleTestCode = () => {
     setSubmitting(true);
+    setError(null); // Reset error state
     console.log("Testing code:", codeInput);
     console.log("Selected language:", selectedLanguage);
 
@@ -95,13 +97,21 @@ function ProblemPage() {
       },
       body: JSON.stringify(requestData),
     })
-    .then(response => response.json())
+    .then(response => {
+      if (!response.ok) {
+        return response.json().then(err => {
+          throw new Error(err.detail || "Unknown error");
+        });
+      }
+      return response.json();
+    })
     .then(data => {
       console.log("Test Response:", data);
       setTestOutput(data.output);
     })
     .catch((error) => {
       console.error("Error:", error);
+      setError(error.message);
     })
     .finally(() => {
       setSubmitting(false);
@@ -110,6 +120,7 @@ function ProblemPage() {
 
   const handleSubmit = () => {
     setSubmitting(true);
+    setError(null); // Reset error state
     console.log("Submitted code:", codeInput);
     console.log("Selected language:", selectedLanguage);
 
@@ -126,13 +137,21 @@ function ProblemPage() {
       },
       body: formData,
     })
-    .then(response => response.json())
+    .then(response => {
+      if (!response.ok) {
+        return response.json().then(err => {
+          throw new Error(err.detail || "Unknown error");
+        });
+      }
+      return response.json();
+    })
     .then(data => {
       console.log("Response:", data);
       setResponseOutput(data);
     })
     .catch((error) => {
       console.error("Error:", error);
+      setError(error.message);
     })
     .finally(() => {
       setSubmitting(false);
@@ -187,7 +206,7 @@ function ProblemPage() {
               <button onClick={() => handleRemoveTestCase(index)}>-</button>
             </div>
           ))}
-          <button onClick={handleAddTestCase} className = "add-test">+</button>
+          <button onClick={handleAddTestCase} className="add-test">+</button>
         </div>
         <button
           className="submit-button"
@@ -209,7 +228,13 @@ function ProblemPage() {
         >
           {submitting ? "Submitting..." : "Submit"}
         </button>
-        {testOutput && (
+        {error && (
+          <div className="output-container error">
+            <h2>Error:</h2>
+            <p>{error}</p>
+          </div>
+        )}
+        {testOutput && Array.isArray(testOutput) && (
           <div className="output-container">
             <h2>Output:</h2>
             {testOutput.map((output, index) => (
