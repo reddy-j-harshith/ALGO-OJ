@@ -344,6 +344,7 @@ def execute_code(request):
     with open(file_path, "w") as f:
         f.write(code)
 
+    compile_error = None
     if lang == "c":
         compile_result = subprocess.run(
             ["gcc", file_path, "-o", os.path.join(output_folder_path, unique_name)],
@@ -351,7 +352,7 @@ def execute_code(request):
             text=True
         )
         if compile_result.returncode != 0:
-            return Response({"error": "Compilation Error", "output": compile_result.stderr}, status=status.HTTP_400_BAD_REQUEST)
+            compile_error = compile_result.stderr
     elif lang == "cpp":
         compile_result = subprocess.run(
             ["g++", file_path, "-o", os.path.join(output_folder_path, unique_name)],
@@ -359,7 +360,10 @@ def execute_code(request):
             text=True
         )
         if compile_result.returncode != 0:
-            return Response({"error": "Compilation Error", "output": compile_result.stderr}, status=status.HTTP_400_BAD_REQUEST)
+            compile_error = compile_result.stderr
+
+    if compile_error:
+        return Response({"error": "Compilation Error", "output": compile_error}, status=status.HTTP_400_BAD_REQUEST)
 
     output = []
     runtime = 0
@@ -386,7 +390,7 @@ def execute_code(request):
             text=True
         )
         try:
-            process.communicate(timeout=5)
+            stdout, stderr = process.communicate(timeout=5)
             end_time = time.time()
             runtime += end_time - start_time
 
@@ -397,8 +401,11 @@ def execute_code(request):
             except psutil.NoSuchProcess:
                 pass
 
-            with open(output_file_path, "r") as output_file:
-                output.append(output_file.read())
+            if stderr:
+                output.append(stderr)
+            else:
+                with open(output_file_path, "r") as output_file:
+                    output.append(output_file.read())
 
         except subprocess.TimeoutExpired:
             process.kill()
@@ -413,6 +420,7 @@ def execute_code(request):
     }
 
     return Response(response_data, status=status.HTTP_200_OK)
+
 
 @view(['GET'])
 @permission_classes([IsAuthenticated])

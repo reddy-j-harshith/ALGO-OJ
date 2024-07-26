@@ -50,7 +50,7 @@ function IDEPage() {
     .then(data => {
       console.log("Test Response:", data);
       if (data.error) {
-        alert(data.error);
+        setTestOutput([data.output]);
       } else {
         setTestOutput(data.output);
       }
