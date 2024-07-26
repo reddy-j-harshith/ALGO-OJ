@@ -49,7 +49,11 @@ function IDEPage() {
     .then(response => response.json())
     .then(data => {
       console.log("Test Response:", data);
-      setTestOutput(data.output);
+      if (data.error) {
+        alert(data.error);
+      } else {
+        setTestOutput(data.output);
+      }
     })
     .catch((error) => {
       console.error("Error:", error);

@@ -317,7 +317,7 @@ def submit_code(request):
         print(f"Exception: {str(e)}")
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-@view(['POST'])    
+@view(['POST'])
 def execute_code(request):
     lang = request.data.get('lang')
     code = request.data.get('code')
@@ -325,6 +325,9 @@ def execute_code(request):
 
     if lang not in ["c", "cpp", "py"]:
         return Response({"error": "Invalid language"}, status=status.HTTP_400_BAD_REQUEST)
+
+    if not isinstance(inputs, list):
+        return Response({"error": "Inputs should be a list"}, status=status.HTTP_400_BAD_REQUEST)
     
     input_folder = "compile_input"
     output_folder = "compile_output"
@@ -386,7 +389,6 @@ def execute_code(request):
             process.communicate(timeout=5)
             end_time = time.time()
             runtime += end_time - start_time
-
 
             try:
                 process_info = psutil.Process(process.pid)
