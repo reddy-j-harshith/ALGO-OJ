@@ -31,10 +31,10 @@ function ProblemPage() {
     .catch((error) => {
       console.error("Error fetching problem detail:", error);
     });
-  
+
     const fetchLastSave = () => {
-      if (!authTokens || !code) return; // Ensure auth tokens and problem code are available
-  
+      if (!authTokens || !code) return;
+
       fetch(`http://localhost:8000/api/fetch_latest_code/${user.user_id}/${code}/`, {
         method: 'GET',
         headers: {
@@ -51,13 +51,13 @@ function ProblemPage() {
       .then(data => {
         console.log("Last submission:", data);
         setCodeInput(data.code);
-        setSelectedLanguage(data.language);  // Update language
+        setSelectedLanguage(data.language);
       })
       .catch((error) => {
         console.error("Error fetching last submission:", error);
       });
     };
-  
+
     fetchLastSave();
   }, [authTokens, code, user]);
 
@@ -68,7 +68,7 @@ function ProblemPage() {
       code: codeInput,
       language: selectedLanguage
     };
-  
+
     fetch("http://localhost:8000/api/update_latest_code/", {
       method: 'PUT',
       headers: {
@@ -89,9 +89,8 @@ function ProblemPage() {
     .catch((error) => {
       console.error("Error saving code:", error);
     });
-  };  
-  
-  // Add event listener for Ctrl + S
+  };
+
   useEffect(() => {
     const handleKeyDown = (event) => {
       if (event.ctrlKey && event.key === 's') {
@@ -99,13 +98,12 @@ function ProblemPage() {
         handleSaveCode();
       }
     };
-  
+
     window.addEventListener('keydown', handleKeyDown);
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
   }, [codeInput, selectedLanguage]);
-  
 
   const handleAddTestCase = () => {
     setTestCases([...testCases, ""]);
@@ -127,17 +125,17 @@ function ProblemPage() {
       setError("You must add at least one test case.");
       return;
     }
-    
+
     setSubmitting(true);
     console.log("Testing code:", codeInput);
     console.log("Selected language:", selectedLanguage);
-  
+
     const requestData = {
       lang: selectedLanguage,
       code: codeInput,
       inputs: testCases
     };
-  
+
     fetch("http://localhost:8000/api/execute_code/", {
       method: 'POST',
       headers: {
@@ -162,7 +160,6 @@ function ProblemPage() {
       setSubmitting(false);
     });
   };
-  
 
   const handleSubmit = () => {
     setSubmitting(true);
@@ -206,7 +203,7 @@ function ProblemPage() {
 
   const handleForumSubmit = (e) => {
     navigate('/forum/' + problem.code);
-  }
+  };
 
   if (!problem) {
     return <div className="loading">Loading...</div>;
@@ -215,86 +212,78 @@ function ProblemPage() {
   return (
     <div className="problem-detail-container">
       <h2 className="problem-detail-title">{problem.title}</h2>
-      <div className="problem-detail-content">
-        <div className="problem-statement">{problem.description}</div>
-      </div>
-      <div className="editor-container">
-        <Editor
-          height="50vh"
-          defaultLanguage={selectedLanguage}
-          value={codeInput}
-          onChange={(value) => setCodeInput(value || "")}
-          theme="vs-dark"
-        />
-        <div className="language-select">
-          <label htmlFor="language">Select Language:</label>
-          <select
-            id="language"
-            value={selectedLanguage}
-            onChange={(e) => setSelectedLanguage(e.target.value)}
-          >
-            <option value="c">C</option>
-            <option value="cpp">C++</option>
-            <option value="py">Python</option>
-          </select>
-        </div>
-        <div className="test-case-container">
-          <h3>Test Cases</h3>
-          {testCases.map((testCase, index) => (
-            <div key={index} className="test-case">
-              <textarea
-                value={testCase}
-                onChange={(e) => handleTestCaseChange(index, e.target.value)}
-                placeholder={`Test Case ${index + 1}`}
-              />
-              <button onClick={() => handleRemoveTestCase(index)}>-</button>
-            </div>
-          ))}
-          <button onClick={handleAddTestCase} className="add-test">+</button>
-        </div>
-        <button
-          className="submit-button"
-          onClick={handleForumSubmit}
-        >
-          Forum
-        </button>
-        <button
-          className="submit-button"
-          onClick={handleTestCode}
-          disabled={submitting}
-        >
-          {submitting ? "Testing..." : "Test Code"}
-        </button>
-        <button
-          className="submit-button"
-          onClick={handleSubmit}
-          disabled={submitting}
-        >
-          {submitting ? "Submitting..." : "Submit"}
-        </button>
-        {error && (
-          <div className="output-container error">
-            <h2>Error:</h2>
-            <p>{error}</p>
+      <div className="resizable-container">
+        <div className="resizable problem-detail-content">
+          <div className="problem-buttons">
+            <button onClick={handleForumSubmit} className="description-button">Forum</button>
+            <button className="description-button">Submissions</button>
+            <button className="description-button">Leaderboard</button>
           </div>
-        )}
-        {testOutput && Array.isArray(testOutput) && (
-          <div className="output-container">
-            <h2>Test Case Output:</h2>
-            {testOutput.map((output, index) => (
-              <p key={index}><strong>Test Case {index + 1}:</strong> {output}</p>
+          <div className="problem-desc"> {problem.description}</div>
+        </div>
+        <div className="resizable editor-container">
+          <Editor
+            height="50vh"
+            language={selectedLanguage}
+            value={codeInput}
+            onChange={(value) => setCodeInput(value)}
+            theme="vs-dark"
+            options={{ minimap: { enabled: false } }}
+          />
+          <div className="language-select">
+            <label htmlFor="language">Select Language:</label>
+            <select id="language" value={selectedLanguage} onChange={(e) => setSelectedLanguage(e.target.value)}>
+              <option value="c">C</option>
+              <option value="cpp">C++</option>
+              <option value="py">Python</option>
+            </select>
+          </div>
+          <div className="test-case-container">
+            {testCases.map((testCase, index) => (
+              <div key={index} className="test-case">
+                <textarea
+                  value={testCase}
+                  onChange={(e) => handleTestCaseChange(index, e.target.value)}
+                  rows="2"
+                  placeholder={`Test Case ${index + 1}`}
+                />
+                <button onClick={() => handleRemoveTestCase(index)}>-</button>
+              </div>
             ))}
+            <button className="add-test" onClick={handleAddTestCase}>+</button>
           </div>
-        )}
-        {responseOutput && (
-          <div className="output-container">
+          <div className="submit-buttons-container">
+            <button onClick={handleTestCode} className="submit-button" disabled={submitting}>
+              {submitting ? "Testing..." : "Test"}
+            </button>
+            <button onClick={handleSubmit} className="submit-button" disabled={submitting}>
+              {submitting ? "Submitting..." : "Submit"}
+            </button>
+          </div>
+          {error && (
+            <div className="output-container error">
+              <h2>Error:</h2>
+              <p>{error}</p>
+            </div>
+          )}
+          {testOutput && Array.isArray(testOutput) && (
+            <div className="output-container">
+              <h2>Test Case Output:</h2>
+              {testOutput.map((output, index) => (
+                <p key={index}><strong>Test Case {index + 1}:</strong> {output}</p>
+              ))}
+            </div>
+          )}
+          {responseOutput && (
+            <div className="output-container">
             <h2>Result:</h2>
             <p><strong>Verdict:</strong> {responseOutput.verdict}</p>
             <p><strong>Test Cases Passed:</strong> {responseOutput.test_cases_passed} / {responseOutput.total_test_cases}</p>
             <p><strong>Time Taken:</strong> {responseOutput.time_taken} seconds</p>
-            <p><strong>Memory Taken:</strong> {responseOutput.memory_taken} MB</p>
+            <p><strong>Memory Taken:</strong> {responseOutput.memory_taken} B</p>
           </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
   );

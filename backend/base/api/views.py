@@ -258,7 +258,7 @@ def submit_code(request):
                         total_time += end_time - start_time
 
                         try:
-                            process_memory = psutil.Process(process.pid).memory_info().rss / (1024 * 1024)  # in MB
+                            process_memory = psutil.Process(process.pid).memory_info().rss# in KB
                             total_memory += process_memory
                         except psutil.NoSuchProcess:
                             pass
@@ -286,22 +286,20 @@ def submit_code(request):
             problem=problem,
             user=user,
             verdict=verdict,
-            time=total_time,
-            memory=total_memory,
+            time=round(total_time, 4),
+            memory=round(total_memory, 9),
             language=lang,
             code=code
         )
 
         submission.save()
 
-        total_time = round(total_time, 4)
-
         response_data = {
             "verdict": verdict,
             "test_cases_passed": passed_test_cases,
             "total_test_cases": test_cases.count(),
-            "time_taken": total_time,
-            "memory_taken": total_memory
+            "time_taken": round(total_time, 4),
+            "memory_taken": round(total_memory, 9)
         }
 
         if verdict == "Accepted":
@@ -317,6 +315,7 @@ def submit_code(request):
     except Exception as e:
         print(f"Exception: {str(e)}")
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 @view(['POST'])
 def execute_code(request):
@@ -398,7 +397,7 @@ def execute_code(request):
             try:
                 process_info = psutil.Process(process.pid)
                 memory_info = process_info.memory_info()
-                memory += memory_info.rss / 1024
+                memory += memory_info.rss
             except psutil.NoSuchProcess:
                 pass
 
@@ -417,10 +416,11 @@ def execute_code(request):
     response_data = {
         "output": output,
         "runtime": round(runtime, 4),
-        "memory": round(memory, 2)
+        "memory": round(memory, 9)
     }
 
     return Response(response_data, status=status.HTTP_200_OK)
+
 
 
 @view(['GET'])
