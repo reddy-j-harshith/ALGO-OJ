@@ -1,6 +1,6 @@
 from rest_framework.serializers import ModelSerializer
 from django.contrib.auth.models import User
-from base.models import Problem, Forum, Submission
+from base.models import Problem, Forum, Submission, LatestCode
 
 class ProblemSerializer(ModelSerializer):
     class Meta:
@@ -20,4 +20,9 @@ class SubmissionSerializer(ModelSerializer):
 class UserSerializer(ModelSerializer):
     class Meta:
         model = User
+        fields = '__all__'
+
+class LatestSerializer(ModelSerializer):
+    class Meta:
+        model = LatestCode  
         fields = '__all__'

@@ -15,8 +15,7 @@ function ProblemPage() {
   const [testOutput, setTestOutput] = useState([]);
   const [error, setError] = useState(null);
 
-  let { authTokens } = useContext(AuthContext);
-  let { user } = useContext(AuthContext);
+  let { authTokens, user } = useContext(AuthContext);
 
   useEffect(() => {
     fetch(`http://localhost:8000/api/get_problem/${code}/`, {
@@ -32,11 +31,11 @@ function ProblemPage() {
     .catch((error) => {
       console.error("Error fetching problem detail:", error);
     });
-
+  
     const fetchLastSubmission = () => {
       if (!authTokens || !code) return; // Ensure auth tokens and problem code are available
   
-      fetch(`http://localhost:8000/api/get_last_submission/${user.user_id}/${code}/`, {
+      fetch(`http://localhost:8000/api/fetch_latest_code/${user.user_id}/${code}/`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${authTokens?.access}`,
@@ -52,7 +51,7 @@ function ProblemPage() {
       .then(data => {
         console.log("Last submission:", data);
         setCodeInput(data.code);
-        setSelectedLanguage(data.lang);
+        setSelectedLanguage(data.language);  // Update language
       })
       .catch((error) => {
         console.error("Error fetching last submission:", error);
@@ -61,6 +60,52 @@ function ProblemPage() {
   
     fetchLastSubmission();
   }, [authTokens, code, user]);
+
+  const handleSaveCode = () => {
+    const requestData = {
+      user_id: user.user_id,
+      problem_code: code,
+      code: codeInput,
+      language: selectedLanguage
+    };
+  
+    fetch("http://localhost:8000/api/update_latest_code/", {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${authTokens?.access}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestData),
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Failed to save code');
+      }
+      return response.json();
+    })
+    .then(data => {
+      console.log("Code saved successfully:", data);
+    })
+    .catch((error) => {
+      console.error("Error saving code:", error);
+    });
+  };
+  
+  // Add event listener for Ctrl + S
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.ctrlKey && event.key === 's') {
+        event.preventDefault();
+        handleSaveCode();
+      }
+    };
+  
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [codeInput, selectedLanguage]);
+  
 
   const handleAddTestCase = () => {
     setTestCases([...testCases, ""]);
@@ -78,16 +123,21 @@ function ProblemPage() {
   };
 
   const handleTestCode = () => {
+    if (testCases.length === 0 || testCases.every(testCase => testCase.trim() === "")) {
+      setError("You must add at least one test case.");
+      return;
+    }
+    
     setSubmitting(true);
     console.log("Testing code:", codeInput);
     console.log("Selected language:", selectedLanguage);
-
+  
     const requestData = {
       lang: selectedLanguage,
       code: codeInput,
       inputs: testCases
     };
-
+  
     fetch("http://localhost:8000/api/execute_code/", {
       method: 'POST',
       headers: {
@@ -112,12 +162,11 @@ function ProblemPage() {
       setSubmitting(false);
     });
   };
+  
 
   const handleSubmit = () => {
     setSubmitting(true);
-    setError(null); // Reset error state
-    console.log("Submitted code:", codeInput);
-    console.log("Selected language:", selectedLanguage);
+    setError(null);
 
     const formData = new URLSearchParams();
     formData.append("lang", selectedLanguage);
@@ -231,7 +280,7 @@ function ProblemPage() {
         )}
         {testOutput && Array.isArray(testOutput) && (
           <div className="output-container">
-            <h2>Output:</h2>
+            <h2>Test Case Output:</h2>
             {testOutput.map((output, index) => (
               <p key={index}><strong>Test Case {index + 1}:</strong> {output}</p>
             ))}
@@ -239,7 +288,7 @@ function ProblemPage() {
         )}
         {responseOutput && (
           <div className="output-container">
-            <h2>Output:</h2>
+            <h2>Result:</h2>
             <p><strong>Verdict:</strong> {responseOutput.verdict}</p>
             <p><strong>Test Cases Passed:</strong> {responseOutput.test_cases_passed} / {responseOutput.total_test_cases}</p>
             <p><strong>Time Taken:</strong> {responseOutput.time_taken} seconds</p>

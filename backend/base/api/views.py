@@ -1,4 +1,5 @@
 import os
+from urllib import response
 import uuid
 import time
 import psutil
@@ -16,8 +17,8 @@ from django.http import HttpResponse
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 
-from base.models import Problem, Submission, TestCase, Forum
-from .serializers import ProblemSerializer, ForumSerializer, SubmissionSerializer, UserSerializer
+from base.models import LatestCode, Problem, Submission, TestCase, Forum
+from .serializers import ProblemSerializer, ForumSerializer, SubmissionSerializer, UserSerializer, LatestSerializer
 
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
@@ -438,3 +439,35 @@ def get_last_submission(request, id, code):
     submission = Submission.objects.filter(user=id, problem=problem).order_by('-submission_date').first()
     serializer = SubmissionSerializer(submission, many=False)
     return Response(serializer.data)
+
+# Triggers when ctrl + s was pressed
+@view(['PUT'])
+@permission_classes([IsAuthenticated])
+def update_latest_code(request):
+    user = User.objects.get(id=request.data.get('user_id'))
+    problem = Problem.objects.get(code=request.data.get('problem_code'))
+    code = request.data.get('code')
+    language = request.data.get('language')
+
+    try:
+        latest_code = LatestCode.objects.get(user=user, problem=problem)
+        latest_code.code = code
+        latest_code.language = language
+        latest_code.save()
+    except LatestCode.DoesNotExist:
+        LatestCode.objects.create(user=user, problem=problem, code=code, language=language)
+
+    return Response(status=status.HTTP_200_OK)
+
+@view(['GET'])
+@permission_classes([IsAuthenticated])
+def fetch_latest_code(request, user_id, problem_code):
+    user = User.objects.get(id=user_id)
+    problem = Problem.objects.get(code=problem_code)
+
+    try:
+        latest_code = LatestCode.objects.get(user=user, problem=problem)
+        serializer = LatestSerializer(latest_code)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    except LatestCode.DoesNotExist:
+        return Response({"detail": "No code found"}, status=status.HTTP_404_NOT_FOUND)

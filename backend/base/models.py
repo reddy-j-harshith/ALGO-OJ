@@ -1,4 +1,5 @@
 from re import sub
+from tkinter import CASCADE
 from django.db import models
 from django.db.models.signals import post_delete
 from django.dispatch import receiver
@@ -61,3 +62,9 @@ class Submission(models.Model):
 
     def __str__(self):
         return 'Submission: ' + self.problem.title
+    
+class LatestCode(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    problem = models.ForeignKey(Problem, on_delete=models.CASCADE)
+    code = models.TextField()
+    language = models.CharField(max_length=10, default='c')
