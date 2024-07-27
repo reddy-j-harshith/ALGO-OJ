@@ -8,6 +8,7 @@ body {
     background-repeat: no-repeat;
     background-attachment: fixed;
     background-position: center;
+    overflow: overlay; 
   }
   
   code {
@@ -22,3 +23,18 @@ textarea,
 select {
   font-family: 'Signika';
 }
+
+::-webkit-scrollbar {
+    width: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.5); /* Customize the scrollbar thumb */
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1); /* Customize the scrollbar track */
+}
+
+
