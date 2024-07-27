@@ -15,6 +15,10 @@ body {
       monospace;
   }
 
-button {
-  font-family: inherit;
+button,
+input.button,
+input,
+textarea,
+select {
+  font-family: 'Signika';
 }
