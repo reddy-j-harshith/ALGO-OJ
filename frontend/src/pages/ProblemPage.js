@@ -32,7 +32,7 @@ function ProblemPage() {
       console.error("Error fetching problem detail:", error);
     });
   
-    const fetchLastSubmission = () => {
+    const fetchLastSave = () => {
       if (!authTokens || !code) return; // Ensure auth tokens and problem code are available
   
       fetch(`http://localhost:8000/api/fetch_latest_code/${user.user_id}/${code}/`, {
@@ -58,7 +58,7 @@ function ProblemPage() {
       });
     };
   
-    fetchLastSubmission();
+    fetchLastSave();
   }, [authTokens, code, user]);
 
   const handleSaveCode = () => {
@@ -89,7 +89,7 @@ function ProblemPage() {
     .catch((error) => {
       console.error("Error saving code:", error);
     });
-  };
+  };  
   
   // Add event listener for Ctrl + S
   useEffect(() => {

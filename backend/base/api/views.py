@@ -457,7 +457,7 @@ def update_latest_code(request):
     except LatestCode.DoesNotExist:
         LatestCode.objects.create(user=user, problem=problem, code=code, language=language)
 
-    return Response(status=status.HTTP_200_OK)
+    return Response({"message": "Code saved successfully"}, status=status.HTTP_200_OK)
 
 @view(['GET'])
 @permission_classes([IsAuthenticated])
