@@ -17,11 +17,29 @@
     text-align: center;
 }
 
-.problem-detail-content,
+.problem-buttons{
+    padding: 15px 20px 5px 20px;
+}
+
+.problem-desc{
+    text-align: left;
+}
+
+.problem-detail-content{
+    flex: 1;
+    padding: 20px 20px;
+    background-color: #000;
+    color: #ddd;
+    border: 1px solid #333;
+    border-radius: 5px;
+    margin: 10px;
+    overflow: auto; /* Allow content to scroll */
+}
+
+
 .editor-container {
     flex: 1;
-    padding: 20px;
-    background-color: #000;
+    padding: 20px 20px;
     color: #ddd;
     border: 1px solid #333;
     border-radius: 5px;
@@ -44,7 +62,7 @@
 .editor-container {
     display: flex;
     flex-direction: column;
-    padding: 20px 20px;
+    padding-top: 10px;
 }
 
 .language-select,
@@ -57,7 +75,7 @@
 .test-case textarea {
     padding: 5px;
     border: 1px solid #333;
-    background-color: #111;
+    background-color: #000;
     color: #ddd;
     border-radius: 5px;
     font-size: 16px;
@@ -69,7 +87,7 @@
 .submit-button,
 .add-test,
 .test-case button {
-    background-color: #000;
+    background-color: #111;
     border: 1px solid #333;
     color: #ddd;
     border-radius: 5px;

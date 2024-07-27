@@ -216,9 +216,13 @@ function ProblemPage() {
         <div className="resizable problem-detail-content">
           <div className="problem-buttons">
             <button onClick={handleForumSubmit} className="description-button">Forum</button>
+            <span>|      |</span>
             <button className="description-button">Submissions</button>
+            <span>|      |</span>
             <button className="description-button">Leaderboard</button>
           </div>
+          <hr></hr>
+          <br></br>
           <div className="problem-desc"> {problem.description}</div>
         </div>
         <div className="resizable editor-container">
