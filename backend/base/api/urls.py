@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import MyTokenObtainPairView, get_forum, register_user, get_latest_problems, get_problem, create_problem, delete_problem, give_admin, remove_admin, post_message, submit_code, execute_code, get_last_submission, get_submissions, list_users, update_latest_code, fetch_latest_code, get_user_submissions
+from .views import MyTokenObtainPairView, get_forum, register_user, get_latest_problems, get_problem, create_problem, delete_problem, give_admin, remove_admin, post_message, submit_code, execute_code, get_last_submission, list_users, update_latest_code, fetch_latest_code, get_user_submissions
 
 from rest_framework_simplejwt.views import (
     TokenRefreshView,
@@ -37,8 +37,7 @@ urlpatterns = [
 
     # User Submissions
     path('get_last_submission/<int:id>/<str:code>/', get_last_submission, name = 'get_last_submission'),
-    path('get_submissions/<int:id>/<str:code>/', get_submissions, name = 'get_submissions'),
-    path('get_user_submissions/<int:id>/', get_user_submissions, name = 'get_user_submissions'),
+    path('get_user_submissions/<int:id>/<str:code>/', get_user_submissions, name = 'get_user_submissions'),
 
     # LatestCode
     path('update_latest_code/', update_latest_code, name = 'update_latest_code'),

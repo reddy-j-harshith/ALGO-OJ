@@ -246,6 +246,12 @@ function ProblemPage() {
     return <div className="loading">Loading...</div>;
   }
 
+  const handleSubmissionsSubmit = (e) => {
+    navigate('/submissions/' + user
+      .user_id + '/' + problem
+      .code);
+  }
+
   return (
     <div className="problem-detail-container">
       <h2 className="problem-detail-title">{problem.title}</h2>
@@ -254,7 +260,7 @@ function ProblemPage() {
           <div className="problem-buttons">
             <button onClick={handleForumSubmit} className="description-button">Forum</button>
             <span>|      |</span>
-            <button className="description-button">Submissions</button>
+            <button onClick={handleSubmissionsSubmit} className="description-button">Submissions</button>
             <span>|      |</span>
             <button onClick={handleFetchPreviousSubmission} className="description-button">Previous submission</button>
           </div>

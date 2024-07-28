@@ -424,14 +424,6 @@ def execute_code(request):
     return Response(response_data, status=status.HTTP_200_OK)
 
 
-
-@view(['GET'])
-@permission_classes([IsAuthenticated])
-def get_submissions(request, id, code):
-    submissions = Submission.objects.filter(user=id, problem=code)
-    serializer = SubmissionSerializer(submissions, many=False)
-    return Response(serializer.data)
-
 @view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_last_submission(request, id, code):
@@ -444,10 +436,15 @@ def get_last_submission(request, id, code):
 
 @view(['GET'])
 @permission_classes([IsAuthenticated])
-def get_user_submissions(request, id):
-    submissions = Submission.objects.get(id)
-    serializer = SubmissionSerializer(submissions, many=True)
-    return Response(serializer.data)
+def get_user_submissions(request, id, code):
+    paginator = PageNumberPagination()
+    paginator.page_size = 10
+    user = User.objects.get(id=id)
+    problem = Problem.objects.get(code=code)
+    submissions = Submission.objects.filter(user=user, problem=problem).order_by('-submission_date')
+    result_page = paginator.paginate_queryset(submissions, request)
+    serializer = SubmissionSerializer(result_page, many=True)
+    return paginator.get_paginated_response(serializer.data)
 
 # Triggers when ctrl + s was pressed
 @view(['PUT'])
