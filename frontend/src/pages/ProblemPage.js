@@ -281,6 +281,7 @@ function ProblemPage() {
             theme="vs-dark"
             options={{ minimap: { enabled: false } }}
           />
+          <h5>Press Ctrl + S to save your code</h5>
           {message && (
             <div className="message-container">
               <p>{message}</p>
