@@ -7,6 +7,7 @@ const AuthContext = createContext();
 export default AuthContext;
 
 export const AuthProvider = ({children}) => {
+    let baseURL = import.meta.env.DJANGO_BASE_URL;
     let [authTokens, setAuthTokens] = useState(() => {
         const token = localStorage.getItem('authTokens');
         return token ? JSON.parse(token) : null;
@@ -25,7 +26,7 @@ export const AuthProvider = ({children}) => {
 
     const loginUser = async (e) => {
         e.preventDefault();
-        const response = await fetch('http://127.0.0.1:8000/api/token/', {
+        const response = await fetch(`${baseURL}/api/token/`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -57,7 +58,7 @@ export const AuthProvider = ({children}) => {
     };
 
     const updateToken = async () => {
-        const response = await fetch('http://127.0.0.1:8000/api/token/refresh/', {
+        const response = await fetch(`${baseURL}/api/token/refresh/`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

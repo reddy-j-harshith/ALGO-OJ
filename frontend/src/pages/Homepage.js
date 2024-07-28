@@ -11,8 +11,10 @@ const HomePage = () => {
   let { authTokens } = useContext(AuthContext)
   let { logoutUser } = useContext(AuthContext)
   
+  let baseURL = import.meta.env.DJANGO_BASE_URL
+  
   let getProblems = async (currentPage = 1) => {
-    let response = await fetch(`http://localhost:8000/api/get_latest/?page=${currentPage}`, {
+    let response = await fetch(`${baseURL}/api/get_latest/?page=${currentPage}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

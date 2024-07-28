@@ -4,6 +4,7 @@ import './SetProblem.css';
 
 const ProblemPage = () => {
     let { authTokens } = useContext(AuthContext);
+    let baseURL = import.meta.env.DJANGO_BASE_URL;
 
     const [problem, setProblem] = useState({
         code: '',
@@ -50,7 +51,7 @@ const ProblemPage = () => {
             formData.append('output_files', outputFile);
         });
 
-        const response = await fetch('http://localhost:8000/api/create_problem/', {
+        const response = await fetch(`${baseURL}/api/create_problem/`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${authTokens.access}`,
@@ -81,7 +82,7 @@ const ProblemPage = () => {
     const handleDelete = async (e) => {
         e.preventDefault();
 
-        const response = await fetch(`http://localhost:8000/api/delete_problem/${deleteCode}/`, {
+        const response = await fetch(`${baseURL}/api/delete_problem/${deleteCode}/`, {
             method: 'DELETE',
             headers: {
                 'Authorization': `Bearer ${authTokens.access}`,

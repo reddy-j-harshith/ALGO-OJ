@@ -20,12 +20,13 @@ const RegistrationPage = () => {
   let navigate = useNavigate();
   let { logoutUser } = useContext(AuthContext);
   let { authTokens } = useContext(AuthContext);
+  let baseURL = import.meta.env.DJANGO_BASE_URL;
   const [error, setError] = useState("");
 
   const handleSubmit = async (e) => {
     try {
         e.preventDefault();
-      let response = await fetch('http://localhost:8000/api/register/', {
+      let response = await fetch(`${baseURL}/api/register/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

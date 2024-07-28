@@ -8,6 +8,8 @@ const AdminPanel = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [pageCount, setPageCount] = useState(0);
 
+    const baseURL = import.meta.env.DJANGO_BACKEND_URL;
+
     const usersPerPage = 3; // For testing with 3 entries per page
 
     let { authTokens, user } = useContext(AuthContext);
@@ -15,7 +17,7 @@ const AdminPanel = () => {
     
     const fetchUsers = async (currentPage = 1) => {
         try {
-            const response = await fetch(`http://localhost:8000/api/users?page=${currentPage}&page_size=${usersPerPage}`, {
+            const response = await fetch(`${baseURL}/api/users?page=${currentPage}&page_size=${usersPerPage}`, {
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${authTokens?.access}`
@@ -35,7 +37,7 @@ const AdminPanel = () => {
     
     const handleAdminStatusChange = async (userId, isAdmin) => {
         try {
-            const url = isAdmin ? `http://localhost:8000/api/remove_admin/${userId}/` : `http://localhost:8000/api/give_admin/${userId}/`;
+            const url = isAdmin ? `${baseURL}/api/remove_admin/${userId}/` : `${baseURL}/api/give_admin/${userId}/`;
             const response = await fetch(url, {
                 method: 'PUT',
                 headers: {

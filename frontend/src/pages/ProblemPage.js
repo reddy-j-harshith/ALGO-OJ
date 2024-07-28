@@ -16,9 +16,10 @@ function ProblemPage() {
   const [error, setError] = useState(null);
 
   let { authTokens, user } = useContext(AuthContext);
+  let baseURL = import.meta.env.DJANGO_BASE_URL;
 
   useEffect(() => {
-    fetch(`http://localhost:8000/api/get_problem/${code}/`, {
+    fetch(`${baseURL}/api/get_problem/${code}/`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${authTokens?.access}`,
@@ -35,7 +36,7 @@ function ProblemPage() {
     const fetchLastSave = () => {
       if (!authTokens || !code) return;
 
-      fetch(`http://localhost:8000/api/fetch_latest_code/${user.user_id}/${code}/`, {
+      fetch(`${baseURL}/api/fetch_latest_code/${user.user_id}/${code}/`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${authTokens?.access}`,
@@ -69,7 +70,7 @@ function ProblemPage() {
       language: selectedLanguage
     };
 
-    fetch("http://localhost:8000/api/update_latest_code/", {
+    fetch(`${baseURL}/api/update_latest_code/`, {
       method: 'PUT',
       headers: {
         'Authorization': `Bearer ${authTokens?.access}`,
@@ -136,7 +137,7 @@ function ProblemPage() {
       inputs: testCases
     };
 
-    fetch("http://localhost:8000/api/execute_code/", {
+    fetch(`${baseURL}/api/execute_code/`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${authTokens?.access}`,
@@ -170,7 +171,7 @@ function ProblemPage() {
     formData.append("problem_code", code);
     formData.append("code", codeInput);
 
-    fetch("http://localhost:8000/api/submit_code/", {
+    fetch(`${baseURL}/api/submit_code/`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${authTokens?.access}`,

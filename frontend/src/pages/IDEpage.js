@@ -11,7 +11,7 @@ function IDEPage() {
   const [testOutput, setTestOutput] = useState([]);
 
   let { authTokens } = useContext(AuthContext);
-
+  let baseURL = import.meta.env.DJANGO_BASE_URL;
   const handleAddTestCase = () => {
     setTestCases([...testCases, ""]);
   };
@@ -38,7 +38,7 @@ function IDEPage() {
       inputs: testCases
     };
 
-    fetch("http://localhost:8000/api/execute_code/", {
+    fetch(`${baseURL}/api/execute_code/`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${authTokens?.access}`,
