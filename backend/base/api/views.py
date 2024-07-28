@@ -446,6 +446,16 @@ def get_user_submissions(request, id, code):
     serializer = SubmissionSerializer(result_page, many=True)
     return paginator.get_paginated_response(serializer.data)
 
+@view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_submission(request, id):
+    try:
+        submission = Submission.objects.get(id=id)
+        serializer = SubmissionSerializer(submission)
+        return Response(serializer.data)
+    except Submission.DoesNotExist:
+        return Response({'error': 'Submission not found'}, status=404)
+
 # Triggers when ctrl + s was pressed
 @view(['PUT'])
 @permission_classes([IsAuthenticated])

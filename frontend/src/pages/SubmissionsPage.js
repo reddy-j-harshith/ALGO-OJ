@@ -58,22 +58,22 @@ const SubmissionsPage = () => {
             {submissions.map((submission) => (
               <tr key={submission.id} className="submission-link-row">
                 <td>
-                  <Link to={`/get_submission/${submission.id}`} className="submission-link">
+                  <Link to={`/get_problem/${code}?submission=${submission.id}`} className="submission-link">
                     {submission.verdict}
                   </Link>
                 </td>
                 <td>
-                  <Link to={`/get_submission/${submission.id}`} className="submission-link">
+                  <Link to={`/get_problem/${code}?submission=${submission.id}`} className="submission-link">
                     {submission.language}
                   </Link>
                 </td>
                 <td>
-                  <Link to={`/get_submission/${submission.id}`} className="submission-link">
+                  <Link to={`/get_problem/${code}?submission=${submission.id}`} className="submission-link">
                     {submission.time} sec
                   </Link>
                 </td>
                 <td>
-                  <Link to={`/get_submission/${submission.id}`} className="submission-link">
+                  <Link to={`/get_problem/${code}?submission=${submission.id}`} className="submission-link">
                     {submission.memory} B
                   </Link>
                 </td>

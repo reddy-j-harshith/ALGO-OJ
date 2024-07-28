@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { Editor } from "@monaco-editor/react";
 import "./ProblemPage.css";
 import AuthContext from "../context/AuthContext";
@@ -7,6 +7,7 @@ import Config from "../Config";
 
 function ProblemPage() {
   const { code } = useParams();
+  const location = useLocation();
   const [problem, setProblem] = useState(null);
   const [codeInput, setCodeInput] = useState("");
   const [selectedLanguage, setSelectedLanguage] = useState("c");
@@ -16,7 +17,6 @@ function ProblemPage() {
   const [testOutput, setTestOutput] = useState([]);
   const [error, setError] = useState(null);
   const [message, setMessage] = useState("");
-
 
   let { authTokens, user } = useContext(AuthContext);
   let baseURL = Config.baseURL;
@@ -36,10 +36,17 @@ function ProblemPage() {
       console.error("Error fetching problem detail:", error);
     });
 
-    const fetchLastSave = () => {
+    const queryParams = new URLSearchParams(location.search);
+    const submissionId = queryParams.get('submission');
+
+    const fetchCode = () => {
       if (!authTokens || !code) return;
-    
-      fetch(`${baseURL}/api/fetch_latest_code/${user.user_id}/${code}/`, {
+
+      const url = submissionId 
+        ? `${baseURL}/api/get_submission/${submissionId}/` 
+        : `${baseURL}/api/fetch_latest_code/${user.user_id}/${code}/`;
+
+      fetch(url, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${authTokens?.access}`,
@@ -48,23 +55,23 @@ function ProblemPage() {
       })
       .then(response => {
         if (!response.ok) {
-          throw new Error('Failed to fetch last submission');
+          throw new Error('Failed to fetch code');
         }
         return response.json();
       })
       .then(data => {
-        console.log("Last submission:", data);
+        console.log("Fetched code:", data);
         setCodeInput(data.code);
         setSelectedLanguage(data.language);
-        setMessage("Previous checkpoint fetched successfully.");
+        setMessage(submissionId ? "Previous submission code loaded." : "Previous checkpoint fetched successfully.");
       })
       .catch((error) => {
-        console.error("Error fetching last submission:", error);
+        console.error("Error fetching code:", error);
       });
     };
 
-    fetchLastSave();
-  }, [authTokens, code, user]);
+    fetchCode();
+  }, [authTokens, code, user, location.search]);
 
   const handleSaveCode = () => {
     const requestData = {
@@ -195,7 +202,6 @@ function ProblemPage() {
       setMessage("No Previous Submission Found.");
     });
   };
-  
 
   const handleSubmit = () => {
     setSubmitting(true);
@@ -247,9 +253,7 @@ function ProblemPage() {
   }
 
   const handleSubmissionsSubmit = (e) => {
-    navigate('/submissions/' + user
-      .user_id + '/' + problem
-      .code);
+    navigate('/submissions/' + user.user_id + '/' + problem.code);
   }
 
   return (
@@ -328,12 +332,12 @@ function ProblemPage() {
           )}
           {responseOutput && (
             <div className="output-container">
-            <h2>Result:</h2>
-            <p><strong>Verdict:</strong> {responseOutput.verdict}</p>
-            <p><strong>Test Cases Passed:</strong> {responseOutput.test_cases_passed} / {responseOutput.total_test_cases}</p>
-            <p><strong>Time Taken:</strong> {responseOutput.time_taken} seconds</p>
-            <p><strong>Memory Taken:</strong> {responseOutput.memory_taken} B</p>
-          </div>
+              <h2>Result:</h2>
+              <p><strong>Verdict:</strong> {responseOutput.verdict}</p>
+              <p><strong>Test Cases Passed:</strong> {responseOutput.test_cases_passed} / {responseOutput.total_test_cases}</p>
+              <p><strong>Time Taken:</strong> {responseOutput.time_taken} seconds</p>
+              <p><strong>Memory Taken:</strong> {responseOutput.memory_taken} B</p>
+            </div>
           )}
         </div>
       </div>
