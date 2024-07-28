@@ -2,6 +2,7 @@ import React, { useState, useContext } from "react";
 import { Editor } from "@monaco-editor/react";
 import "./IDEPage.css";
 import AuthContext from "../context/AuthContext";
+import Config from "../Config";
 
 function IDEPage() {
   const [codeInput, setCodeInput] = useState("");
@@ -11,7 +12,8 @@ function IDEPage() {
   const [testOutput, setTestOutput] = useState([]);
 
   let { authTokens } = useContext(AuthContext);
-  let baseURL = import.meta.env.DJANGO_BASE_URL;
+  let baseURL = Config.baseURL;
+
   const handleAddTestCase = () => {
     setTestCases([...testCases, ""]);
   };

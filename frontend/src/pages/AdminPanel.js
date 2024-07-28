@@ -2,13 +2,14 @@ import React, { useState, useEffect, useContext } from 'react';
 import ReactPaginate from 'react-paginate';
 import './AdminPanel.css';
 import AuthContext from '../context/AuthContext';
+import Config from '../Config';
 
 const AdminPanel = () => {
     const [users, setUsers] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [pageCount, setPageCount] = useState(0);
 
-    const baseURL = import.meta.env.DJANGO_BACKEND_URL;
+    const baseURL = Config.baseURL;
 
     const usersPerPage = 3; // For testing with 3 entries per page
 

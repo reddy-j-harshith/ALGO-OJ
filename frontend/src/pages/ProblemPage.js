@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Editor } from "@monaco-editor/react";
 import "./ProblemPage.css";
 import AuthContext from "../context/AuthContext";
+import Config from "../Config";
 
 function ProblemPage() {
   const { code } = useParams();
@@ -16,7 +17,7 @@ function ProblemPage() {
   const [error, setError] = useState(null);
 
   let { authTokens, user } = useContext(AuthContext);
-  let baseURL = import.meta.env.DJANGO_BASE_URL;
+  let baseURL = Config.baseURL;
 
   useEffect(() => {
     fetch(`${baseURL}/api/get_problem/${code}/`, {
@@ -220,7 +221,7 @@ function ProblemPage() {
             <span>|      |</span>
             <button className="description-button">Submissions</button>
             <span>|      |</span>
-            <button className="description-button">Leaderboard</button>
+            <button className="description-button">Previous submission</button>
           </div>
           <hr></hr>
           <br></br>

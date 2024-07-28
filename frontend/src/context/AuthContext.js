@@ -1,13 +1,14 @@
 import { createContext, useState, useEffect } from 'react';
 import { jwtDecode } from 'jwt-decode'; // Corrected import
 import { useNavigate } from 'react-router-dom';
+import Config from '../Config'
 
 const AuthContext = createContext();
 
 export default AuthContext;
 
 export const AuthProvider = ({children}) => {
-    let baseURL = import.meta.env.DJANGO_BASE_URL;
+    let baseURL = Config.baseURL;
     let [authTokens, setAuthTokens] = useState(() => {
         const token = localStorage.getItem('authTokens');
         return token ? JSON.parse(token) : null;

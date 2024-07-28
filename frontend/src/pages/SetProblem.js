@@ -1,10 +1,11 @@
 import React, { useState, useContext } from 'react';
 import AuthContext from '../context/AuthContext';
 import './SetProblem.css';
+import Config from '../Config';
 
 const ProblemPage = () => {
     let { authTokens } = useContext(AuthContext);
-    let baseURL = import.meta.env.DJANGO_BASE_URL;
+    let baseURL = Config.baseURL;
 
     const [problem, setProblem] = useState({
         code: '',

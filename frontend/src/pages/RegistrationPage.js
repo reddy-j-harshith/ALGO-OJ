@@ -2,6 +2,7 @@ import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AuthContext from '../context/AuthContext'
 import './RegistrationPage.css'; 
+import Config from '../Config';
 
 const RegistrationPage = () => {
   const [formData, setFormData] = useState({
@@ -20,7 +21,8 @@ const RegistrationPage = () => {
   let navigate = useNavigate();
   let { logoutUser } = useContext(AuthContext);
   let { authTokens } = useContext(AuthContext);
-  let baseURL = import.meta.env.DJANGO_BASE_URL;
+  let baseURL = Config.baseURL;
+
   const [error, setError] = useState("");
 
   const handleSubmit = async (e) => {
