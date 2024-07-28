@@ -8,7 +8,7 @@ from rest_framework import status
 from django.http import JsonResponse
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 from rest_framework.decorators import api_view as view, permission_classes
 
 from django.contrib.auth.models import User
@@ -35,6 +35,7 @@ class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
 
 @view(['POST'])
+@permission_classes([AllowAny])
 def register_user(request):
 
     username = request.data.get("username")
@@ -318,6 +319,7 @@ def submit_code(request):
 
 
 @view(['POST'])
+@permission_classes([AllowAny])
 def execute_code(request):
     lang = request.data.get('lang')
     code = request.data.get('code')
@@ -427,7 +429,7 @@ def execute_code(request):
 @permission_classes([IsAuthenticated])
 def get_submissions(request, id, code):
     submissions = Submission.objects.filter(user=id, problem=code)
-    serializer = SubmissionSerializer(submissions, many=True)
+    serializer = SubmissionSerializer(submissions, many=False)
     return Response(serializer.data)
 
 @view(['GET'])
@@ -438,6 +440,13 @@ def get_last_submission(request, id, code):
 
     submission = Submission.objects.filter(user=id, problem=problem).order_by('-submission_date').first()
     serializer = SubmissionSerializer(submission, many=False)
+    return Response(serializer.data)
+
+@view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_user_submissions(request, id):
+    submissions = Submission.objects.get(id)
+    serializer = SubmissionSerializer(submissions, many=True)
     return Response(serializer.data)
 
 # Triggers when ctrl + s was pressed

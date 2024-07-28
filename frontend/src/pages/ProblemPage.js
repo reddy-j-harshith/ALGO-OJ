@@ -15,6 +15,8 @@ function ProblemPage() {
   const [testCases, setTestCases] = useState([""]);
   const [testOutput, setTestOutput] = useState([]);
   const [error, setError] = useState(null);
+  const [message, setMessage] = useState("");
+
 
   let { authTokens, user } = useContext(AuthContext);
   let baseURL = Config.baseURL;
@@ -36,7 +38,7 @@ function ProblemPage() {
 
     const fetchLastSave = () => {
       if (!authTokens || !code) return;
-
+    
       fetch(`${baseURL}/api/fetch_latest_code/${user.user_id}/${code}/`, {
         method: 'GET',
         headers: {
@@ -54,6 +56,7 @@ function ProblemPage() {
         console.log("Last submission:", data);
         setCodeInput(data.code);
         setSelectedLanguage(data.language);
+        setMessage("Previous checkpoint fetched successfully.");
       })
       .catch((error) => {
         console.error("Error fetching last submission:", error);
@@ -70,7 +73,7 @@ function ProblemPage() {
       code: codeInput,
       language: selectedLanguage
     };
-
+  
     fetch(`${baseURL}/api/update_latest_code/`, {
       method: 'PUT',
       headers: {
@@ -87,9 +90,11 @@ function ProblemPage() {
     })
     .then(data => {
       console.log("Code saved successfully:", data);
+      setMessage("Code saved successfully.");
     })
     .catch((error) => {
       console.error("Error saving code:", error);
+      setMessage("Error saving code.");
     });
   };
 
@@ -163,15 +168,44 @@ function ProblemPage() {
     });
   };
 
+  const handleFetchPreviousSubmission = () => {
+    if (!authTokens || !code) return;
+  
+    fetch(`${baseURL}/api/get_last_submission/${user.user_id}/${code}/`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${authTokens?.access}`,
+        'Content-Type': 'application/json',
+      },
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Failed to fetch previous submission');
+      }
+      return response.json();
+    })
+    .then(data => {
+      console.log("Previous submission:", data);
+      setCodeInput(data.code);
+      setSelectedLanguage(data.language);
+      setMessage("Previous submission fetched successfully.");
+    })
+    .catch((error) => {
+      console.error("Error fetching previous submission:", error);
+      setMessage("No Previous Submission Found.");
+    });
+  };
+  
+
   const handleSubmit = () => {
     setSubmitting(true);
     setError(null);
-
+  
     const formData = new URLSearchParams();
     formData.append("lang", selectedLanguage);
     formData.append("problem_code", code);
     formData.append("code", codeInput);
-
+  
     fetch(`${baseURL}/api/submit_code/`, {
       method: 'POST',
       headers: {
@@ -191,6 +225,7 @@ function ProblemPage() {
     .then(data => {
       console.log("Response:", data);
       setResponseOutput(data);
+      setMessage("Code submitted successfully.");
     })
     .catch((error) => {
       console.error("Error:", error);
@@ -221,7 +256,7 @@ function ProblemPage() {
             <span>|      |</span>
             <button className="description-button">Submissions</button>
             <span>|      |</span>
-            <button className="description-button">Previous submission</button>
+            <button onClick={handleFetchPreviousSubmission} className="description-button">Previous submission</button>
           </div>
           <hr></hr>
           <br></br>
@@ -236,6 +271,11 @@ function ProblemPage() {
             theme="vs-dark"
             options={{ minimap: { enabled: false } }}
           />
+          {message && (
+            <div className="message-container">
+              <p>{message}</p>
+            </div>
+          )}
           <div className="language-select">
             <label htmlFor="language">Select Language:</label>
             <select id="language" value={selectedLanguage} onChange={(e) => setSelectedLanguage(e.target.value)}>
