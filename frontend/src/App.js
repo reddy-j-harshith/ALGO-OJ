@@ -10,7 +10,7 @@ import Navbar from './components/Navbar';
 import LoginRoute from './utils/LoginRoute';
 import NotFound from './pages/NotFound';
 import SetProblem from './pages/SetProblem';
-import IDEPage from './pages/IDEpage';
+import IDEPage from './pages/IDEPage';
 import AdminPanel from './pages/AdminPanel';
 import SubmissionsPage from './pages/SubmissionsPage'
 
