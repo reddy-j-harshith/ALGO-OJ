@@ -230,6 +230,7 @@ function ProblemPage() {
     })
     .then(data => {
       console.log("Response:", data);
+      handleSaveCode();
       setResponseOutput(data);
       setMessage("Code submitted successfully.");
     })
