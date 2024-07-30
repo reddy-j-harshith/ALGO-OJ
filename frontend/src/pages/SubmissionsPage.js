@@ -51,7 +51,6 @@ const SubmissionsPage = () => {
               <th>Language</th>
               <th>Status</th>
               <th>Time Taken</th>
-              <th>Memory Taken</th>
             </tr>
           </thead>
           <tbody>
@@ -70,11 +69,6 @@ const SubmissionsPage = () => {
                 <td>
                   <Link to={`/get_problem/${code}?submission=${submission.id}`} className="submission-link">
                     {submission.time} sec
-                  </Link>
-                </td>
-                <td>
-                  <Link to={`/get_problem/${code}?submission=${submission.id}`} className="submission-link">
-                    {submission.memory} B
                   </Link>
                 </td>
               </tr>
