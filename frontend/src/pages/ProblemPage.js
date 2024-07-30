@@ -337,7 +337,7 @@ function ProblemPage() {
               <h2>Result:</h2>
               <p><strong>Verdict:</strong> {responseOutput.verdict}</p>
               <p><strong>Test Cases Passed:</strong> {responseOutput.test_cases_passed} / {responseOutput.total_test_cases}</p>
-              <p><strong>Time Taken:</strong> {responseOutput.time_taken * 1000} seconds</p>
+              <p><strong>Time Taken:</strong> {responseOutput.time_taken * 1000} ms</p>
             </div>
           )}
         </div>
