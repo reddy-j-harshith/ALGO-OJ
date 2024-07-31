@@ -68,7 +68,7 @@ const SubmissionsPage = () => {
                 </td>
                 <td>
                   <Link to={`/get_problem/${code}?submission=${submission.id}`} className="submission-link">
-                    {submission.time * 1000} ms
+                    {submission.time} sec
                   </Link>
                 </td>
               </tr>

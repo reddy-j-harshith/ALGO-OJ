@@ -13,8 +13,8 @@ function ProblemPage() {
   const [selectedLanguage, setSelectedLanguage] = useState("c");
   const [submitting, setSubmitting] = useState(false);
   const [responseOutput, setResponseOutput] = useState(null);
-  const [testCases, setTestCases] = useState([""]);
-  const [testOutput, setTestOutput] = useState([]);
+  const [stdin, setStdin] = useState("");
+  const [stdout, setStdout] = useState("");
   const [error, setError] = useState(null);
   const [message, setMessage] = useState("");
 
@@ -22,30 +22,28 @@ function ProblemPage() {
   let baseURL = Config.baseURL;
 
   useEffect(() => {
-    if (!authTokens || !code || !user) return;
+    fetch(`${baseURL}/api/get_problem/${code}/`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${authTokens?.access}`,
+      },
+    })
+    .then(response => response.json())
+    .then(data => {
+      setProblem(data);
+    })
+    .catch((error) => {
+      alert("Error fetching problem");
+    });
 
-    const fetchProblem = () => {
-      fetch(`${baseURL}/api/get_problem/${code}/`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${authTokens?.access}`,
-        },
-      })
-        .then(response => response.json())
-        .then(data => {
-          setProblem(data);
-        })
-        .catch(() => {
-          alert("Error fetching problem");
-        });
-    };
+    const queryParams = new URLSearchParams(location.search);
+    const submissionId = queryParams.get('submission');
 
     const fetchCode = () => {
-      const queryParams = new URLSearchParams(location.search);
-      const submissionId = queryParams.get('submission');
+      if (!authTokens || !code) return;
 
-      const url = submissionId
-        ? `${baseURL}/api/get_submission/${submissionId}/`
+      const url = submissionId 
+        ? `${baseURL}/api/get_submission/${submissionId}/` 
         : `${baseURL}/api/fetch_latest_code/${user.user_id}/${code}/`;
 
       fetch(url, {
@@ -55,23 +53,22 @@ function ProblemPage() {
           'Content-Type': 'application/json',
         },
       })
-        .then(response => {
-          if (!response.ok) {
-            throw new Error('Failed to fetch code');
-          }
-          return response.json();
-        })
-        .then(data => {
-          setCodeInput(data.code);
-          setSelectedLanguage(data.language);
-          setMessage(submissionId ? "Previous submission code loaded." : "Previous checkpoint fetched successfully.");
-        })
-        .catch(() => {
-          alert("Error fetching code:");
-        });
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Failed to fetch code');
+        }
+        return response.json();
+      })
+      .then(data => {
+        setCodeInput(data.code);
+        setSelectedLanguage(data.language);
+        setMessage(submissionId ? "Previous submission code loaded." : "Previous checkpoint fetched successfully.");
+      })
+      .catch((error) => {
+        alert("Error fetching code:");
+      });
     };
 
-    fetchProblem();
     fetchCode();
   }, [authTokens, code, user, location.search]);
 
@@ -82,7 +79,7 @@ function ProblemPage() {
       code: codeInput,
       language: selectedLanguage
     };
-
+  
     fetch(`${baseURL}/api/update_latest_code/`, {
       method: 'PUT',
       headers: {
@@ -91,18 +88,18 @@ function ProblemPage() {
       },
       body: JSON.stringify(requestData),
     })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Failed to save code');
-        }
-        return response.json();
-      })
-      .then(() => {
-        setMessage("Code saved successfully.");
-      })
-      .catch(() => {
-        setMessage("Error saving code.");
-      });
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Failed to save code');
+      }
+      return response.json();
+    })
+    .then(() => {
+      setMessage("Code saved successfully.");
+    })
+    .catch(() => {
+      setMessage("Error saving code.");
+    });
   };
 
   useEffect(() => {
@@ -119,33 +116,15 @@ function ProblemPage() {
     };
   }, [codeInput, selectedLanguage]);
 
-  const handleAddTestCase = () => {
-    setTestCases([...testCases, ""]);
-  };
-
-  const handleRemoveTestCase = (index) => {
-    const newTestCases = testCases.filter((_, i) => i !== index);
-    setTestCases(newTestCases);
-  };
-
-  const handleTestCaseChange = (index, value) => {
-    const newTestCases = [...testCases];
-    newTestCases[index] = value;
-    setTestCases(newTestCases);
-  };
-
   const handleTestCode = () => {
-    if (testCases.length === 0 || testCases.every(testCase => testCase.trim() === "")) {
-      setError("You must add at least one test case.");
-      return;
-    }
+    setStdout("Running...");
 
     setSubmitting(true);
 
     const requestData = {
       lang: selectedLanguage,
       code: codeInput,
-      inputs: testCases
+      input: stdin
     };
 
     fetch(`${baseURL}/api/execute_code/`, {
@@ -156,25 +135,25 @@ function ProblemPage() {
       },
       body: JSON.stringify(requestData),
     })
-      .then(response => response.json())
-      .then(data => {
-        if (data.error) {
-          setTestOutput([data.output]);
-        } else {
-          setTestOutput(data.output);
-        }
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-      })
-      .finally(() => {
-        setSubmitting(false);
-      });
+    .then(response => response.json())
+    .then(data => {
+      if (data.error) {
+        setStdout(data.output);
+      } else {
+        setStdout(data.output);
+      }
+    })
+    .catch((error) => {
+      console.error("Error:", error);
+    })
+    .finally(() => {
+      setSubmitting(false);
+    });
   };
 
   const handleFetchPreviousSubmission = () => {
     if (!authTokens || !code) return;
-
+  
     fetch(`${baseURL}/api/get_last_submission/${user.user_id}/${code}/`, {
       method: 'GET',
       headers: {
@@ -182,31 +161,31 @@ function ProblemPage() {
         'Content-Type': 'application/json',
       },
     })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Failed to fetch previous submission');
-        }
-        return response.json();
-      })
-      .then(data => {
-        setCodeInput(data.code);
-        setSelectedLanguage(data.language);
-        setMessage("Previous submission fetched successfully.");
-      })
-      .catch(() => {
-        setMessage("No Previous Submission Found.");
-      });
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Failed to fetch previous submission');
+      }
+      return response.json();
+    })
+    .then(data => {
+      setCodeInput(data.code);
+      setSelectedLanguage(data.language);
+      setMessage("Previous submission fetched successfully.");
+    })
+    .catch((error) => {
+      setMessage("No Previous Submission Found.");
+    });
   };
 
   const handleSubmit = () => {
     setSubmitting(true);
     setError(null);
-
+  
     const formData = new URLSearchParams();
     formData.append("lang", selectedLanguage);
     formData.append("problem_code", code);
     formData.append("code", codeInput);
-
+  
     fetch(`${baseURL}/api/submit_code/`, {
       method: 'POST',
       headers: {
@@ -215,31 +194,31 @@ function ProblemPage() {
       },
       body: formData,
     })
-      .then(response => {
-        if (!response.ok) {
-          return response.json().then(err => {
-            throw new Error(err.detail || "Unknown error");
-          });
-        }
-        return response.json();
-      })
-      .then(data => {
-        handleSaveCode();
-        setResponseOutput(data);
-        setMessage("Code submitted successfully.");
-      })
-      .catch((error) => {
-        alert("Error submitting code");
-        setError(error.message);
-      })
-      .finally(() => {
-        setSubmitting(false);
-      });
+    .then(response => {
+      if (!response.ok) {
+        return response.json().then(err => {
+          throw new Error(err.detail || "Unknown error");
+        });
+      }
+      return response.json();
+    })
+    .then(data => {
+      handleSaveCode();
+      setResponseOutput(data);
+      setMessage("Code submitted successfully.");
+    })
+    .catch((error) => {
+      alert("Error submitting code");
+      setError(error.message);
+    })
+    .finally(() => {
+      setSubmitting(false);
+    });
   };
 
   let navigate = useNavigate();
 
-  const handleForumSubmit = () => {
+  const handleForumSubmit = (e) => {
     navigate('/forum/' + problem.code);
   };
 
@@ -247,9 +226,9 @@ function ProblemPage() {
     return <div className="loading">Loading...</div>;
   }
 
-  const handleSubmissionsSubmit = () => {
+  const handleSubmissionsSubmit = (e) => {
     navigate('/submissions/' + user.user_id + '/' + problem.code);
-  };
+  }
 
   return (
     <div className="problem-detail-container">
@@ -268,13 +247,6 @@ function ProblemPage() {
           <div className="problem-desc"> {problem.description}</div>
         </div>
         <div className="resizable editor-container">
-          <div className="language-select">
-            <select id="language" value={selectedLanguage} onChange={(e) => setSelectedLanguage(e.target.value)}>
-              <option value="c">C</option>
-              <option value="cpp">C++</option>
-              <option value="py">Python</option>
-            </select>
-          </div>
           <Editor
             height="50vh"
             language={selectedLanguage}
@@ -289,19 +261,28 @@ function ProblemPage() {
               <p>{message}</p>
             </div>
           )}
+          <div className="language-select">
+            <label htmlFor="language">Select Language:</label>
+            <select id="language" value={selectedLanguage} onChange={(e) => setSelectedLanguage(e.target.value)}>
+              <option value="c">C</option>
+              <option value="cpp">C++</option>
+              <option value="py">Python</option>
+            </select>
+          </div>
           <div className="test-case-container">
-            {testCases.map((testCase, index) => (
-              <div key={index} className="test-case">
-                <textarea
-                  value={testCase}
-                  onChange={(e) => handleTestCaseChange(index, e.target.value)}
-                  rows="2"
-                  placeholder={`Test Case ${index + 1}`}
-                />
-                <button onClick={() => handleRemoveTestCase(index)}>-</button>
-              </div>
-            ))}
-            <button className="add-test" onClick={handleAddTestCase}>+</button>
+            <textarea
+              value={stdin}
+              onChange={(e) => setStdin(e.target.value)}
+              rows="4"
+              placeholder="Stdin"
+            />
+            <textarea
+              value={stdout}
+              onChange={(e) => setStdout(e.target.value)}
+              rows="4"
+              placeholder="Stdout"
+              readOnly
+            />
           </div>
           <div className="submit-buttons-container">
             <button onClick={handleTestCode} className="submit-button" disabled={submitting}>
@@ -315,14 +296,6 @@ function ProblemPage() {
             <div className="output-container error">
               <h2>Error:</h2>
               <p>{error}</p>
-            </div>
-          )}
-          {testOutput && Array.isArray(testOutput) && (
-            <div className="output-container">
-              <h2>Test Case Output:</h2>
-              {testOutput.map((output, index) => (
-                <p key={index}><strong>Test Case {index + 1}:</strong> {output}</p>
-              ))}
             </div>
           )}
           {responseOutput && (

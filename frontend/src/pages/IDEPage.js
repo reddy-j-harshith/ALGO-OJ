@@ -8,34 +8,20 @@ function IDEPage() {
   const [codeInput, setCodeInput] = useState("");
   const [selectedLanguage, setSelectedLanguage] = useState("c");
   const [submitting, setSubmitting] = useState(false);
-  const [testCases, setTestCases] = useState([""]);
-  const [testOutput, setTestOutput] = useState([]);
+  const [testCase, setTestCase] = useState(""); // Single test case
+  const [testOutput, setTestOutput] = useState("");
 
   let { authTokens } = useContext(AuthContext);
   let baseURL = Config.baseURL;
 
-  const handleAddTestCase = () => {
-    setTestCases([...testCases, ""]);
-  };
-
-  const handleRemoveTestCase = (index) => {
-    const newTestCases = testCases.filter((_, i) => i !== index);
-    setTestCases(newTestCases);
-  };
-
-  const handleTestCaseChange = (index, value) => {
-    const newTestCases = [...testCases];
-    newTestCases[index] = value;
-    setTestCases(newTestCases);
-  };
-
   const handleTestCode = () => {
+
     setSubmitting(true);
 
     const requestData = {
       lang: selectedLanguage,
       code: codeInput,
-      inputs: testCases
+      input: testCase // Single input
     };
 
     fetch(`${baseURL}/api/execute_code/`, {
@@ -46,20 +32,20 @@ function IDEPage() {
       },
       body: JSON.stringify(requestData),
     })
-    .then(response => response.json())
-    .then(data => {
-      if (data.error) {
-        setTestOutput([data.output]);
-      } else {
-        setTestOutput(data.output);
-      }
-    })
-    .catch(() => {
-      alert("Error");
-    })
-    .finally(() => {
-      setSubmitting(false);
-    });
+      .then(response => response.json())
+      .then(data => {
+        if (data.error) {
+          setTestOutput(data.output);
+        } else {
+          setTestOutput(data.output);
+        }
+      })
+      .catch(() => {
+        alert("Error");
+      })
+      .finally(() => {
+        setSubmitting(false);
+      });
   };
 
   return (
@@ -86,18 +72,12 @@ function IDEPage() {
           </select>
         </div>
         <div className="test-case-container">
-          <h3>Test Cases</h3>
-          {testCases.map((testCase, index) => (
-            <div key={index} className="test-case">
-              <textarea
-                value={testCase}
-                onChange={(e) => handleTestCaseChange(index, e.target.value)}
-                placeholder={`Test Case ${index + 1}`}
-              />
-              <button onClick={() => handleRemoveTestCase(index)}>-</button>
-            </div>
-          ))}
-          <button onClick={handleAddTestCase} className="add-test">+</button>
+          <h3>Test Case</h3>
+          <textarea
+            value={testCase}
+            onChange={(e) => setTestCase(e.target.value)}
+            placeholder="Test Case"
+          />
         </div>
         <button
           className="submit-button"
@@ -109,9 +89,7 @@ function IDEPage() {
         {testOutput && (
           <div className="output-container">
             <h2>Output:</h2>
-            {testOutput.map((output, index) => (
-              <p key={index}><strong>Test Case {index + 1}:</strong> {output}</p>
-            ))}
+            <p><strong>Test Case Output:</strong> {testOutput}</p>
           </div>
         )}
       </div>

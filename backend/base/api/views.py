@@ -21,6 +21,12 @@ from base.models import LatestCode, Problem, Submission, TestCase, Forum
 from .serializers import ProblemSerializer, ForumSerializer, SubmissionSerializer, UserSerializer, LatestSerializer
 
 
+def get_memory_usage():
+    process = psutil.Process(os.getpid())
+    mem_info = process.memory_info()
+    return mem_info.rss
+
+
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
     def get_token(cls, user):
@@ -218,7 +224,7 @@ def submit_code(request):
         verdict = "Accepted"
         passed_test_cases = 0
         total_time = 0
-        total_memory = 0
+        max_memory_usage = 0
 
         if lang == "c":
             compile_result = subprocess.run(
@@ -252,18 +258,15 @@ def submit_code(request):
 
                 with open(input_file_path, "r") as input_file, open(generated_output_file_path, "w") as output_file:
                     start_time = time.time()
+                    initial_memory = get_memory_usage()
                     process = subprocess.Popen(exec_command, stdin=input_file, stdout=output_file, stderr=subprocess.PIPE, text=True)
                     try:
-                        process.wait(timeout=problem.time_limit)
+                        process.wait(timeout=problem.time_limit / 1000)  # Convert milliseconds to seconds
                         end_time = time.time()
-                        total_time += end_time - start_time
-
-                        try:
-                            process_memory = psutil.Process(process.pid).memory_info().rss# in KB
-                            total_memory += process_memory
-                        except psutil.NoSuchProcess:
-                            pass
-
+                        final_memory = get_memory_usage()
+                        memory_usage = final_memory - initial_memory
+                        max_memory_usage = max(max_memory_usage, memory_usage)
+                        total_time += (end_time - start_time) * 1000  # Convert seconds to milliseconds
                     except subprocess.TimeoutExpired:
                         process.kill()
                         verdict = "Time Limit Exceeded"
@@ -288,7 +291,7 @@ def submit_code(request):
             user=user,
             verdict=verdict,
             time=round(total_time, 4),
-            memory=round(total_memory, 9),
+            memory=round(max_memory_usage, 2),  # Memory is now in KB
             language=lang,
             code=code
         )
@@ -299,8 +302,8 @@ def submit_code(request):
             "verdict": verdict,
             "test_cases_passed": passed_test_cases,
             "total_test_cases": test_cases.count(),
-            "time_taken": round(total_time, 4),
-            "memory_taken": round(total_memory, 9)
+            "time_taken": round(total_time, 4),  # Time in milliseconds
+            "memory_taken": round(max_memory_usage, 2)  # Memory in KB
         }
 
         if verdict == "Accepted":
@@ -323,14 +326,14 @@ def submit_code(request):
 def execute_code(request):
     lang = request.data.get('lang')
     code = request.data.get('code')
-    inputs = request.data.get('inputs')
+    input_data = request.data.get('input')
 
     if lang not in ["c", "cpp", "py"]:
         return Response({"error": "Invalid language"}, status=status.HTTP_400_BAD_REQUEST)
 
-    if not isinstance(inputs, list):
-        return Response({"error": "Inputs should be a list"}, status=status.HTTP_400_BAD_REQUEST)
-    
+    if not isinstance(input_data, str):
+        return Response({"error": "Input should be a string"}, status=status.HTTP_400_BAD_REQUEST)
+
     input_folder = "compile_input"
     output_folder = "compile_output"
     os.makedirs(input_folder, exist_ok=True)
@@ -367,58 +370,45 @@ def execute_code(request):
     if compile_error:
         return Response({"error": "Compilation Error", "output": compile_error}, status=status.HTTP_400_BAD_REQUEST)
 
-    output = []
-    runtime = 0
-    memory = 0
-
     if lang in ["c", "cpp"]:
         exec_command = [os.path.join(output_folder_path, unique_name)]
     else:
         exec_command = ["python", file_path]
 
-    for input_data in inputs:
-        input_file_path = os.path.join(input_folder_path, f"{unique_name}_input.txt")
-        output_file_path = os.path.join(output_folder_path, f"{unique_name}_output.txt")
+    input_file_path = os.path.join(input_folder_path, f"{unique_name}_input.txt")
+    output_file_path = os.path.join(output_folder_path, f"{unique_name}_output.txt")
 
-        with open(input_file_path, "w") as input_file:
-            input_file.write(input_data)
+    with open(input_file_path, "w") as input_file:
+        input_file.write(input_data)
 
-        start_time = time.time()
-        process = subprocess.Popen(
-            exec_command,
-            stdin=open(input_file_path, "r"),
-            stdout=open(output_file_path, "w"),
-            stderr=subprocess.PIPE,
-            text=True
-        )
-        try:
-            stdout, stderr = process.communicate(timeout=5)
-            end_time = time.time()
-            runtime += end_time - start_time
+    process = subprocess.Popen(
+        exec_command,
+        stdin=open(input_file_path, "r"),
+        stdout=open(output_file_path, "w"),
+        stderr=subprocess.PIPE,
+        text=True
+    )
+    
+    try:
+        stdout, stderr = process.communicate(timeout=5)  # Adjust as needed
 
-            try:
-                process_info = psutil.Process(process.pid)
-                memory_info = process_info.memory_info()
-                memory += memory_info.rss
-            except psutil.NoSuchProcess:
-                pass
+        if stderr:
+            output = stderr
+        else:
+            with open(output_file_path, "r") as output_file:
+                output = output_file.read()
 
-            if stderr:
-                output.append(stderr)
-            else:
-                with open(output_file_path, "r") as output_file:
-                    output.append(output_file.read())
+    except subprocess.TimeoutExpired:
+        process.kill()
+        return Response({"error": "Time Limit Exceeded"}, status=status.HTTP_400_BAD_REQUEST)
 
-        except subprocess.TimeoutExpired:
-            process.kill()
-            return Response({"error": "Time Limit Exceeded"}, status=status.HTTP_400_BAD_REQUEST)
-
-        os.remove(input_file_path)
+    os.remove(input_file_path)
 
     response_data = {
         "output": output,
-        "runtime": round(runtime, 4),
-        "memory": round(memory, 9)
+        # Placeholder values for time and memory, if needed:
+        "runtime": "Placeholder for runtime in milliseconds",
+        "memory_taken": "Placeholder for memory in KB"
     }
 
     return Response(response_data, status=status.HTTP_200_OK)

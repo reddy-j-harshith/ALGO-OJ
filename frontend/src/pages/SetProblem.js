@@ -4,8 +4,8 @@ import './SetProblem.css';
 import Config from '../Config';
 
 const ProblemPage = () => {
-    let { authTokens } = useContext(AuthContext);
-    let baseURL = Config.baseURL;
+    const { authTokens } = useContext(AuthContext);
+    const baseURL = Config.baseURL;
 
     const [problem, setProblem] = useState({
         code: '',
@@ -32,6 +32,11 @@ const ProblemPage = () => {
         setTestCases([...testCases, { input: '', output: '' }]);
     };
 
+    const removeTestCase = (index) => {
+        const newTestCases = testCases.filter((_, i) => i !== index);
+        setTestCases(newTestCases);
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -39,8 +44,6 @@ const ProblemPage = () => {
         for (const key in problem) {
             formData.append(key, problem[key]);
         }
-
-        problem.memory_limit = 1000;
 
         testCases.forEach((testCase, index) => {
             const inputFile = new File([testCase.input], `input${index}.txt`, {
@@ -109,7 +112,8 @@ const ProblemPage = () => {
                     <input type="text" name="title" placeholder="Title" value={problem.title} onChange={handleChange} required />
                     <textarea name="description" placeholder="Description" value={problem.description} onChange={handleChange} required></textarea>
                     <input type="text" name="difficulty" placeholder="Difficulty" value={problem.difficulty} onChange={handleChange} required />
-                    <input type="number" name="time_limit" placeholder="Time Limit (s)" value={problem.time_limit * 1000} onChange={handleChange} required />
+                    <input type="number" name="time_limit" placeholder="Time Limit (ms)" value={problem.time_limit} onChange={handleChange} required />
+                    <input type="number" name="memory_limit" placeholder="Memory Limit (KB)" value={problem.memory_limit} onChange={handleChange} required />
 
                     <h3>Test Cases</h3>
                     {testCases.map((testCase, index) => (
@@ -128,6 +132,9 @@ const ProblemPage = () => {
                                 onChange={(e) => handleTestCaseChange(index, e)}
                                 required
                             />
+                            <button type="button" onClick={() => removeTestCase(index)} className="button remove-button">
+                                Remove Test Case
+                            </button>
                         </div>
                     ))}
                     <button type="button" onClick={addTestCase} className="button">

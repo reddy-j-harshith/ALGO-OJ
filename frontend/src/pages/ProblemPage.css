@@ -72,7 +72,8 @@
 }
 
 .language-select select,
-.test-case textarea {
+.test-case-container textarea {
+    resize: none;
     padding: 5px;
     border: 1px solid #333;
     background-color: #000;
