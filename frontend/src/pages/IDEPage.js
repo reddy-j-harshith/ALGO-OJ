@@ -72,11 +72,10 @@ function IDEPage() {
           </select>
         </div>
         <div className="test-case-container">
-          <h3>Test Case</h3>
           <textarea
             value={testCase}
             onChange={(e) => setTestCase(e.target.value)}
-            placeholder="Test Case"
+            placeholder="Stdin"
           />
         </div>
         <button
@@ -88,8 +87,8 @@ function IDEPage() {
         </button>
         {testOutput && (
           <div className="output-container">
-            <h2>Output:</h2>
-            <p><strong>Test Case Output:</strong> {testOutput}</p>
+            <h2>Stdout</h2>
+            <p><strong>{testOutput}</strong></p>
           </div>
         )}
       </div>
