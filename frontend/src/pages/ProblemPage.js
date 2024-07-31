@@ -32,8 +32,8 @@ function ProblemPage() {
     .then(data => {
       setProblem(data);
     })
-    .catch((error) => {
-      alert("Error fetching problem");
+    .catch(() => {
+      console.log("No previous code exists!");
     });
 
     const queryParams = new URLSearchParams(location.search);
@@ -64,8 +64,8 @@ function ProblemPage() {
         setSelectedLanguage(data.language);
         setMessage(submissionId ? "Previous submission code loaded." : "Previous checkpoint fetched successfully.");
       })
-      .catch((error) => {
-        alert("Error fetching code:");
+      .catch(() => {
+        console.log("No previous code found");
       });
     };
 
@@ -303,7 +303,9 @@ function ProblemPage() {
               <h2>Result:</h2>
               <p><strong>Verdict:</strong> {responseOutput.verdict}</p>
               <p><strong>Test Cases Passed:</strong> {responseOutput.test_cases_passed} / {responseOutput.total_test_cases}</p>
-              <p><strong>Time Taken:</strong> {responseOutput.time_taken * 1000} ms</p>
+              <p><strong>Time Taken:</strong> {responseOutput.time_taken} ms</p>
+              <p><strong>Memory Used:</strong> {responseOutput.memory_taken} KB</p>
+
             </div>
           )}
         </div>
