@@ -37,15 +37,13 @@ const RegistrationPage = () => {
       });
 
       if (response.status === 201) {
-        console.log('Registration successful');
+        alert('Registration successful');
         if (authTokens) {
           logoutUser();
         }
         navigate('/login');
       }
-      console.log(formData);
     } catch (error) {
-      console.error("Registration failed:", error.response.data);
       setError("your credentials are not unique");
     }
   };

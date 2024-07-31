@@ -11,7 +11,7 @@ const AdminPanel = () => {
 
     const baseURL = Config.baseURL;
 
-    const usersPerPage = 3; // For testing with 3 entries per page
+    const usersPerPage = 5;
 
     let { authTokens, user } = useContext(AuthContext);
     let currentUser = user;
@@ -26,7 +26,7 @@ const AdminPanel = () => {
             });
             const data = await response.json();
             setUsers(data.results);
-            setPageCount(Math.ceil(data.total / usersPerPage)); // Update page count
+            setPageCount(Math.ceil(data.total / usersPerPage));
         } catch (error) {
             console.error('Error fetching users:', error);
         }
@@ -47,12 +47,12 @@ const AdminPanel = () => {
                 }
             });
             if (response.ok) {
-                fetchUsers(currentPage); // Refresh the users list
+                fetchUsers(currentPage);
             } else {
-                console.error('Error updating admin status:', response.statusText);
+                alert('Error updating admin status');
             }
         } catch (error) {
-            console.error('Error updating admin status:', error);
+            alert('Error updating admin status');
         }
     };
     

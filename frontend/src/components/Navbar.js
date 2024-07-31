@@ -7,7 +7,7 @@ const Header = () => {
   let { user, logoutUser, admin, loading } = useContext(AuthContext);
 
   if (loading) {
-    return <div>Loading...</div>; // Show loading state
+    return <div>Loading...</div>;
   }
 
   return (
@@ -30,7 +30,11 @@ const Header = () => {
           ) : (
             <NavLink to="/login" className={({ isActive }) => isActive ? "active" : ""}>Login</NavLink>
           )}
-          <NavLink to="/register" className={({ isActive }) => isActive ? "active" : ""}>Register</NavLink>
+          {user ? (
+            null
+          ) : (
+            <NavLink to="/register" className={({ isActive }) => isActive ? "active" : ""}>Register</NavLink>
+          )}
         </div>
       </div>
       <div className='space'>

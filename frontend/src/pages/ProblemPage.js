@@ -33,7 +33,7 @@ function ProblemPage() {
       setProblem(data);
     })
     .catch((error) => {
-      console.error("Error fetching problem detail:", error);
+      alert("Error fetching problem");
     });
 
     const queryParams = new URLSearchParams(location.search);
@@ -60,13 +60,12 @@ function ProblemPage() {
         return response.json();
       })
       .then(data => {
-        console.log("Fetched code:", data);
         setCodeInput(data.code);
         setSelectedLanguage(data.language);
         setMessage(submissionId ? "Previous submission code loaded." : "Previous checkpoint fetched successfully.");
       })
       .catch((error) => {
-        console.error("Error fetching code:", error);
+        alert("Error fetching code:");
       });
     };
 
@@ -95,12 +94,10 @@ function ProblemPage() {
       }
       return response.json();
     })
-    .then(data => {
-      console.log("Code saved successfully:", data);
+    .then(() => {
       setMessage("Code saved successfully.");
     })
-    .catch((error) => {
-      console.error("Error saving code:", error);
+    .catch(() => {
       setMessage("Error saving code.");
     });
   };
@@ -141,8 +138,6 @@ function ProblemPage() {
     }
 
     setSubmitting(true);
-    console.log("Testing code:", codeInput);
-    console.log("Selected language:", selectedLanguage);
 
     const requestData = {
       lang: selectedLanguage,
@@ -160,7 +155,6 @@ function ProblemPage() {
     })
     .then(response => response.json())
     .then(data => {
-      console.log("Test Response:", data);
       if (data.error) {
         setTestOutput([data.output]);
       } else {
@@ -192,13 +186,11 @@ function ProblemPage() {
       return response.json();
     })
     .then(data => {
-      console.log("Previous submission:", data);
       setCodeInput(data.code);
       setSelectedLanguage(data.language);
       setMessage("Previous submission fetched successfully.");
     })
     .catch((error) => {
-      console.error("Error fetching previous submission:", error);
       setMessage("No Previous Submission Found.");
     });
   };
@@ -229,13 +221,12 @@ function ProblemPage() {
       return response.json();
     })
     .then(data => {
-      console.log("Response:", data);
       handleSaveCode();
       setResponseOutput(data);
       setMessage("Code submitted successfully.");
     })
     .catch((error) => {
-      console.error("Error:", error);
+      alert("Error submitting code");
       setError(error.message);
     })
     .finally(() => {

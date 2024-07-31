@@ -31,8 +31,6 @@ function IDEPage() {
 
   const handleTestCode = () => {
     setSubmitting(true);
-    console.log("Testing code:", codeInput);
-    console.log("Selected language:", selectedLanguage);
 
     const requestData = {
       lang: selectedLanguage,
@@ -50,15 +48,14 @@ function IDEPage() {
     })
     .then(response => response.json())
     .then(data => {
-      console.log("Test Response:", data);
       if (data.error) {
         setTestOutput([data.output]);
       } else {
         setTestOutput(data.output);
       }
     })
-    .catch((error) => {
-      console.error("Error:", error);
+    .catch(() => {
+      alert("Error");
     })
     .finally(() => {
       setSubmitting(false);

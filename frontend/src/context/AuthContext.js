@@ -1,5 +1,5 @@
 import { createContext, useState, useEffect } from 'react';
-import { jwtDecode } from 'jwt-decode'; // Corrected import
+import { jwtDecode } from 'jwt-decode';
 import { useNavigate } from 'react-router-dom';
 import Config from '../Config'
 
@@ -21,7 +21,7 @@ export const AuthProvider = ({children}) => {
         const token = localStorage.getItem('authTokens');
         return token ? jwtDecode(token).is_staff : false;
     });
-    let [loading, setLoading] = useState(true); // Added loading state
+    let [loading, setLoading] = useState(true);
 
     const navigate = useNavigate();
 
@@ -82,7 +82,7 @@ export const AuthProvider = ({children}) => {
     useEffect(() => {
         if (authTokens) {
             const tokenData = jwtDecode(authTokens.access);
-            const expirationTime = (tokenData.exp * 1000) - 60000; // 1 minute before token expiration
+            const expirationTime = (tokenData.exp * 1000) - 60000;
             const now = Date.now();
 
             if (expirationTime < now) {
@@ -90,11 +90,11 @@ export const AuthProvider = ({children}) => {
             } else {
                 const timeLeft = expirationTime - now;
                 const interval = setInterval(updateToken, timeLeft);
-                setLoading(false); // Set loading to false once tokens are checked
+                setLoading(false);
                 return () => clearInterval(interval);
             }
         } else {
-            setLoading(false); // Set loading to false if no tokens
+            setLoading(false);
         }
     }, [authTokens]);
 
@@ -104,7 +104,7 @@ export const AuthProvider = ({children}) => {
         loginUser: loginUser,
         logoutUser: logoutUser,
         admin: admin,
-        loading: loading // Pass loading state in context
+        loading: loading
     };
 
     return (
