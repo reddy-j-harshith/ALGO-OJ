@@ -52,13 +52,6 @@ function IDEPage() {
     <div className="compile-page-container">
       <h2 className="compile-page-title">Code Testing Page</h2>
       <div className="editor-container">
-        <Editor
-          height="50vh"
-          defaultLanguage={selectedLanguage}
-          value={codeInput}
-          onChange={(value) => setCodeInput(value || "")}
-          theme="vs-dark"
-        />
         <div className="language-select">
           <label htmlFor="language">Select Language:</label>
           <select
@@ -71,6 +64,13 @@ function IDEPage() {
             <option value="py">Python</option>
           </select>
         </div>
+        <Editor
+          height="50vh"
+          defaultLanguage={selectedLanguage}
+          value={codeInput}
+          onChange={(value) => setCodeInput(value || "")}
+          theme="vs-dark"
+        />
         <div className="test-case-container">
           <textarea
             value={testCase}

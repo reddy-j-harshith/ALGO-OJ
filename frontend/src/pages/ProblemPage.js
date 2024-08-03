@@ -247,6 +247,14 @@ function ProblemPage() {
           <div className="problem-desc"> {problem.description}</div>
         </div>
         <div className="resizable editor-container">
+          <div className="language-select">
+            <label htmlFor="language">Select Language:</label>
+            <select id="language" value={selectedLanguage} onChange={(e) => setSelectedLanguage(e.target.value)}>
+              <option value="c">C</option>
+              <option value="cpp">C++</option>
+              <option value="py">Python</option>
+            </select>
+          </div>
           <Editor
             height="50vh"
             language={selectedLanguage}
@@ -261,14 +269,6 @@ function ProblemPage() {
               <p>{message}</p>
             </div>
           )}
-          <div className="language-select">
-            <label htmlFor="language">Select Language:</label>
-            <select id="language" value={selectedLanguage} onChange={(e) => setSelectedLanguage(e.target.value)}>
-              <option value="c">C</option>
-              <option value="cpp">C++</option>
-              <option value="py">Python</option>
-            </select>
-          </div>
           <div className="test-case-container">
             <textarea
               value={stdin}
