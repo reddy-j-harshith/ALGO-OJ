@@ -28,8 +28,8 @@ urlpatterns = [
     path('remove_admin/<int:id>/', remove_admin, name = 'remove_admin'),
 
     # Forum
-    path('get_forum/<int:str>/', get_forum, name = 'forum_messages'),
-    path('post_message/<str:id>', post_message, name = 'post_message'),
+    path('get_forum/<str:code>/', get_forum, name = 'forum_messages'),
+    path('post_message/<str:code>/', post_message, name = 'post_message'),
 
     # Submission
     path('submit_code/', submit_code, name = 'submit_code'),

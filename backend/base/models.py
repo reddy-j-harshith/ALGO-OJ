@@ -42,7 +42,7 @@ def submission_delete(sender, instance, **kwargs):
     instance.outputs.delete(save=False)
 
 class Forum(models.Model):
-    problem = models.OneToOneField(Problem, on_delete=models.CASCADE)
+    problem = models.ForeignKey(Problem, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     content = models.TextField()
     date = models.DateTimeField(auto_now_add=True)

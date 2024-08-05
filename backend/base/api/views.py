@@ -164,25 +164,32 @@ def remove_admin(request, id):
     
 @view(['GET'])
 @permission_classes([IsAuthenticated])
-def get_forum(request, id):
+def get_forum(request, code):
     try:
-        forum = Forum.objects.filter(problem=id)
+        problem = Problem.objects.get(code=code)
+        forum = Forum.objects.filter(problem=problem)
         serializer = ForumSerializer(forum, many=True)
         return Response(serializer.data)
     except Forum.DoesNotExist:
         return JsonResponse({"error": "Forum not found"}, status=404)
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
-    
-@view(['POST'])
+
+@view(['POST'])    
 @permission_classes([IsAuthenticated])
-def post_message(request, id):
+def post_message(request, code):
     data = request.data
-    problem_id = Problem.objects.filter(code=id)
+    user = request.user
+    try:
+        problem = Problem.objects.get(code=code)
+    except Problem.DoesNotExist:
+        return JsonResponse({"error": "Problem not found"}, status=404)
+
+
     forum = Forum.objects.create(
-        problem = problem_id,
-        user = data['user'],
-        content = data['content']
+        problem=problem,
+        user=user,
+        content=data['content']
     )
     forum.save()
     return JsonResponse({"Message": "Message posted successfully"}, status=201)

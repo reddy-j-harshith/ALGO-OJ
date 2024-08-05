@@ -13,6 +13,7 @@ import SetProblem from './pages/SetProblem';
 import IDEPage from './pages/IDEPage';
 import AdminPanel from './pages/AdminPanel';
 import SubmissionsPage from './pages/SubmissionsPage'
+import ForumPage from './pages/ForumPage';
 
 function App() {
   return (
@@ -48,6 +49,12 @@ function App() {
             <Route path="/submissions/:id/:code" element={
               <PrivateRoute>
                 <SubmissionsPage />
+              </PrivateRoute>
+            } />
+
+            <Route path="/forum/:code" element={
+              <PrivateRoute>
+                <ForumPage />
               </PrivateRoute>
             } />
             <Route path="*" element={<NotFound />} />

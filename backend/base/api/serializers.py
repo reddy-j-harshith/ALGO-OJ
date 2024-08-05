@@ -1,4 +1,5 @@
 from rest_framework.serializers import ModelSerializer
+from rest_framework import serializers
 from django.contrib.auth.models import User
 from base.models import Problem, Forum, Submission, LatestCode
 
@@ -7,10 +8,13 @@ class ProblemSerializer(ModelSerializer):
         model = Problem
         fields = '__all__'
 
-class ForumSerializer(ModelSerializer):
+class ForumSerializer(serializers.ModelSerializer):
+    user = serializers.StringRelatedField()
+    date = serializers.DateTimeField(format='%Y-%m-%dT%H:%M:%S.%fZ', read_only=True)
+
     class Meta:
         model = Forum
-        fields = '__all__'
+        fields = ['user', 'content', 'date']
 
 class SubmissionSerializer(ModelSerializer):
     class Meta:
