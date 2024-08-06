@@ -3,7 +3,7 @@ import AuthContext from '../context/AuthContext';
 import './SetProblem.css';
 import Config from '../Config';
 
-const ProblemPage = () => {
+const SetProblem = () => {
     const { authTokens } = useContext(AuthContext);
     const baseURL = Config.baseURL;
 
@@ -34,6 +34,34 @@ const ProblemPage = () => {
 
     const removeTestCase = (index) => {
         const newTestCases = testCases.filter((_, i) => i !== index);
+        setTestCases(newTestCases);
+    };
+
+    const handleFileUpload = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const fileContent = event.target.result;
+                parseTestCasesFromFile(fileContent);
+            };
+            reader.readAsText(file);
+        }
+    };
+
+    const parseTestCasesFromFile = (content) => {
+        const testCaseBlocks = content.split('===TESTCASE===').filter(block => block.trim() !== '');
+        const newTestCases = testCaseBlocks.map(block => {
+            const inputSection = block.split('===INPUT===')[1] || '';
+            const outputSection = block.split('===OUTPUT===')[1] || '';
+            const input = inputSection.split('===OUTPUT===')[0]?.trim() || '';
+            const output = outputSection.trim();
+
+            return {
+                input,
+                output,
+            };
+        });
         setTestCases(newTestCases);
     };
 
@@ -141,6 +169,16 @@ const ProblemPage = () => {
                         Add Test Case
                     </button>
 
+                    <div className="file-upload-container">
+                        <input type="file" accept=".txt" onChange={handleFileUpload} className="button" />
+                        <div className="tooltip-container">
+                            <span className="tooltip-icon">?</span>
+                            <div className="tooltip-text">
+                                The file should be in plain text format (.txt). Each test case should be separated by `===TESTCASE===`. Inputs and outputs should be marked as `===INPUT===` and `===OUTPUT===`, respectively.
+                            </div>
+                        </div>
+                    </div>
+
                     <input type="submit" value="Submit" className="button" />
                 </form>
             </div>
@@ -156,4 +194,4 @@ const ProblemPage = () => {
     );
 };
 
-export default ProblemPage;
+export default SetProblem;

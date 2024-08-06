@@ -75,6 +75,7 @@
     color: #eee;
 }
 
+
 .delete-problem-container {
     width: 80%;
     max-width: 800px;
@@ -95,4 +96,44 @@
 
 .test-case-container {
     margin-bottom: 20px;
+}
+
+.file-upload-container {
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+.tooltip-container {
+    position: relative;
+    display: inline-block;
+    margin-left: 8px;
+}
+
+.tooltip-icon {
+    font-size: 16px;
+    color: #eee;
+    cursor: pointer;
+}
+
+.tooltip-text {
+    visibility: hidden;
+    width: 300px;
+    background-color: #333;
+    color: #fff;
+    text-align: left;
+    border-radius: 5px;
+    padding: 5px 10px;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%; /* Position above the icon */
+    left: 50%;
+    margin-left: -150px; /* Center the tooltip */
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.tooltip-container:hover .tooltip-text {
+    visibility: visible;
+    opacity: 1;
 }
