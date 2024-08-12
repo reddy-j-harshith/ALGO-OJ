@@ -54,6 +54,7 @@ The application is deployed and accessible online at [https://www.algorithmix.on
 3. **Run migrations:**
 
     ```bash
+    python manage.py makemigrations
     python manage.py migrate
     ```
 
