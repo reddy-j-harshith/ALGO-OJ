@@ -58,7 +58,7 @@ The application is deployed and accessible online at [https://www.algorithmix.on
     python manage.py migrate
     ```
 
-4. **Create a superuser (optional but recommended):**
+4. **Create a superuser:**
 
     ```bash
     python manage.py createsuperuser
