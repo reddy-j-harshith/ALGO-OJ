@@ -122,8 +122,3 @@ The frontend `Config` file allows you to configure the API endpoints and other s
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Contributions
-
-Feel free to fork this repository, submit pull requests, or report issues. Contributions are welcome!
-"""
