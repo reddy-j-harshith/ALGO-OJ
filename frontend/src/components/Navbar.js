@@ -1,22 +1,35 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import AuthContext from '../context/AuthContext';
 import './Navbar.css';
 
 const Header = () => {
   let { user, logoutUser, admin, loading } = useContext(AuthContext);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   if (loading) {
     return <div>Loading...</div>;
   }
 
+  const toggleMenu = () => {
+    setMenuOpen(!menuOpen);
+  };
+
   return (
     <div>
       <div className="navbar">
         <NavLink to="/" className="logo">
-          <img src="/Algorithmix.png" alt="Algorithmix" className="logo-img" />
+          <img src="/Algorithmix1.png" alt="Algorithmix" className="logo-img" />
         </NavLink>
-        <div className="navbar-right">
+        <div className="navbar-center">
+          <h2 className='title-name'>
+            Algorithmix
+          </h2>
+        </div>
+        <button className="menu-button" onClick={toggleMenu}>
+          &#9776; {/* This is a hamburger icon */}
+        </button>
+        <div className={`navbar-right ${menuOpen ? 'show' : ''}`}>
           {(admin && user) && (
             <NavLink to="/admin" className={({ isActive }) => isActive ? "active" : ""}>Panel</NavLink>
           )}

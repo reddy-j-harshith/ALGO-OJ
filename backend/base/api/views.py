@@ -1,5 +1,4 @@
 import os
-from urllib import response
 import uuid
 import time
 import psutil
@@ -12,7 +11,6 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 from rest_framework.decorators import api_view as view, permission_classes
 
 from django.contrib.auth.models import User
-from django.http import HttpResponse
 
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
