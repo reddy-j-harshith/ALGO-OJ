@@ -41,8 +41,8 @@ The application is deployed and accessible online at [https://www.algorithmix.on
 1. **Clone the repository:**
 
     ```bash
-    git clone https://your-repository-url.git
-    cd your-repository
+    git clone https://github.com/reddy-j-harshith/ALGO-OJ
+    cd ALGO-OJ
     ```
 
 2. **Install the required dependencies:**
